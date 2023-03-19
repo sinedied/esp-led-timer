@@ -1,0 +1,25 @@
+# BOM
+- [1] 64x32 P4 LED Panel [aliexpress](https://fr.aliexpress.com/item/1005004050044228.html?spm=a2g0o.order_list.order_list_main.11.49935e5bPMVVkx&gatewayAdapt=glo2fra) (~16e)
+- [1] Wemos D1 mini ESP32 USB-C (~5e)
+- [ ] 5v 3A USB-C Power Supply + 2m cable [amazon](???) ~(5e)
+- [ ] ???g PLA for enclosure
+
+- ~~[ ] Adaruit Matrix Portal [letmeknow](https://letmeknow.fr/fr/cartes-compatibles/2607-adafruit-matrix-portal-afficheur-internet-aliment%C3%A9-par-circuitpython-652733529718.html) (~32e)~~
+
+# Util
+- https://javl.github.io/image2cpp/
+
+## TODO prototype
+- [x] hello world led matrix
+- [ ] add button to
+  * change timing (double click)
+  * start/pause (single click)
+  * reset (long click)
+- [ ] add wifi
+  * ui to connect wifi/set name
+  * /api/get to fetch current status
+  * /api/set to set current status
+- [ ] design enclosure
+
+## Order list x5
+- [1] 64x32 P4 LED Panel [aliexpress](https://fr.aliexpress.com/item/1005004050044228.html?spm=a2g0o.order_list.order_list_main.11.49935e5bPMVVkx&gatewayAdapt=glo2fra) (~16e)
