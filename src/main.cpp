@@ -430,6 +430,7 @@ void setup() {
 
   pinMode(P_BUTTON, INPUT);
   button.attachClick(handleClick);
+  button.attachDoubleClick(handleDoubleClick);
   button.setPressTicks(1000);
   button.attachLongPressStart(handleLongPress);
 

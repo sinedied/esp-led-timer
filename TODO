@@ -27,7 +27,7 @@ Total: ~170e (34e/pc)
   * change timing (double click)
   * start/pause (single click)
   * reset (long click)
-- [ ] display snowcamp logo on boot
+- [x] display snowcamp logo on boot
 - [ ] add wifi
   * ui to connect wifi/set name
   * /api/get to fetch current status
@@ -37,6 +37,8 @@ Total: ~170e (34e/pc)
   * start stop
   * 3 time colors [G, Orange, Red, Magenta flash]
   * Time + border
+  * progress bar bottom
+- [ ] screensaver / logo animation
 - [ ] design enclosure
 
 ## Order list x5
