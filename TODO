@@ -6,20 +6,52 @@
 
 - ~~[ ] Adaruit Matrix Portal [letmeknow](https://letmeknow.fr/fr/cartes-compatibles/2607-adafruit-matrix-portal-afficheur-internet-aliment%C3%A9-par-circuitpython-652733529718.html) (~32e)~~
 
+# Final BOM x5
+- [5] 64x32 P4 LED Panel [aliexpress](https://fr.aliexpress.com/item/1005004050044228.html?spm=a2g0o.order_list.order_list_main.11.49935e5bPMVVkx&gatewayAdapt=glo2fra)
+- [5] ESP32 CH340 Type-C [aliexpress](https://fr.aliexpress.com/item/1005004616357165.html?spm=a2g0o.cart.0.0.483d378d9aVL67&mp=1&gatewayAdapt=glo2fra)
+- [5] 2m USB-C cable [aliexpress](https://fr.aliexpress.com/item/1005004215823904.html?spm=a2g0o.cart.0.0.483d378d9aVL67&mp=1&gatewayAdapt=glo2fra)
+- [5] 20W USB-C Charger [aliexpress](https://fr.aliexpress.com/item/1005001875465341.html?spm=a2g0o.cart.0.0.483d378d9aVL67&mp=1&gatewayAdapt=glo2fra)
+- [2] 10cm M-F Dupont Cable 40pin [aliexpress](https://fr.aliexpress.com/item/1005004073424751.html?spm=a2g0o.cart.0.0.483d378d9aVL67&mp=1&gatewayAdapt=glo2fra)
+- [1] 20cm M-M Dupont Cable 40pin [aliexpress](https://fr.aliexpress.com/item/1005004073424751.html?spm=a2g0o.cart.0.0.20f2378ditZPlz&mp=1&gatewayAdapt=glo2fra)
+- [1] Push button kit [aliexpress](https://fr.aliexpress.com/item/1005005012663073.html?spm=a2g0o.cart.0.0.20f2378ditZPlz&mp=1&gatewayAdapt=glo2fra)
+- [1] Eryone 1kg PLA [amazon](https://www.amazon.fr/gp/product/B08GCJ32MH/ref=ox_sc_saved_title_9?smid=A1TJBSD7YHQ041&psc=1)
+
+Total: ~170e (34e/pc)
+
 # Util
 - https://javl.github.io/image2cpp/
 
 ## TODO prototype
 - [x] hello world led matrix
-- [ ] add button to
+- [w] add button to
   * change timing (double click)
   * start/pause (single click)
   * reset (long click)
+- [ ] display snowcamp logo on boot
 - [ ] add wifi
   * ui to connect wifi/set name
   * /api/get to fetch current status
   * /api/set to set current status
+- [ ] code UI
+  * 2 timing modes (N)
+  * start stop
+  * 3 time colors [G, Orange, Red, Magenta flash]
+  * Time + border
 - [ ] design enclosure
 
 ## Order list x5
 - [1] 64x32 P4 LED Panel [aliexpress](https://fr.aliexpress.com/item/1005004050044228.html?spm=a2g0o.order_list.order_list_main.11.49935e5bPMVVkx&gatewayAdapt=glo2fra) (~16e)
+
+
+## UI
+
+- short press: start/stop
+- long press (2s): reset timer
+- double press: change mode
+
+### Modes
+
+- Snowcamp logo / screensaver (snow falls) and logo animation
+- Timer 1
+- Timer 2
+- Timer 3
