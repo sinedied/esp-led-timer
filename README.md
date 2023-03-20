@@ -1,6 +1,20 @@
 # ⏰ esp-led-timer
 
-> A simple wifi connected 64x32 led matrix timer for conference, based on ESP8266/ESP32.
+> A wifi connected 64x32 led matrix timer for conferences, based on ESP8266/ESP32.
+
+## Wiring diagram
+
+
+## Building project
+
+
+## How to use
+
+### 1-button interface
+
+
+### Wifi
+
 
 ## Libraries
 
