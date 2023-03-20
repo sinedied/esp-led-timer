@@ -1,5 +1,3 @@
-# BOM
-
 # Final BOM x5
 - [5] 64x32 P4 LED Panel [aliexpress](https://fr.aliexpress.com/item/1005004050044228.html?spm=a2g0o.order_list.order_list_main.11.49935e5bPMVVkx&gatewayAdapt=glo2fra)
 - [5] ESP32 CH340 Type-C [aliexpress](https://fr.aliexpress.com/item/1005004616357165.html?spm=a2g0o.cart.0.0.483d378d9aVL67&mp=1&gatewayAdapt=glo2fra)
@@ -10,10 +8,9 @@
 - [1] Push button kit [aliexpress](https://fr.aliexpress.com/item/1005005012663073.html?spm=a2g0o.cart.0.0.20f2378ditZPlz&mp=1&gatewayAdapt=glo2fra)
 - [1] Eryone 1kg PLA [amazon](https://www.amazon.fr/gp/product/B08GCJ32MH/ref=ox_sc_saved_title_9?smid=A1TJBSD7YHQ041&psc=1)
 
-Total: ~170e (34e/pc)
+- USB Battery? 10mah ~20h-50h
 
-# Util
-- https://javl.github.io/image2cpp/
+Total: ~170e (34e/pc)
 
 ## TODO prototype
 - [x] hello world led matrix
@@ -28,6 +25,8 @@ Total: ~170e (34e/pc)
   * 3 time colors [G, Orange, Red, Magenta flash]
   * Time + border
   * progress bar bottom
+    * flash 5s on warnings
+- [ ] update logo
 - [ ] screensaver / logo animation
 - [ ] add wifi
   * ui to connect wifi/set name
@@ -36,7 +35,6 @@ Total: ~170e (34e/pc)
 - [ ] design enclosure
 
 ## UI
-
 - short press: start/stop
 - long press (2s): reset timer
 - double press: change mode
