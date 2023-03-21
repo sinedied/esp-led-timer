@@ -17,7 +17,37 @@
 
 ## Wiring diagram
 
-TODO
+![Wiring diagram](./docs/wiring.drawio.png)
+
+Connect panel input (PI) and and panel output (PO) like this:
+
+PI | PO
+---|---
+R1 | R0
+G0 | R1
+G1 | G0
+B0 | G1
+B1 | B0
+
+Connect panel input (PI) to the ESP8266 or ESP32 like this:
+
+PI      | ESP8266 GPIO | ESP32 GPIO
+--------|--------------|------------
+A       |  05 - (D1)   | 19 
+B       |  04 - (D2)   | 23 
+C       |  15 - (D8)   | 18 
+D       |  12 - (D6)   | 5 
+STB/LAT |  16 - (D0)   | 22 
+P_OE    |  02 - (D4)   | 16 
+CLK     |  14 - (D5)   | 14 
+R0      |  13 - (D7)   | 13 
+
+Connect push button pins to the ESP8266 or ESP32 like this:
+
+BUTTON | ESP8266 GPIO | ESP32 GPIO
+-------|--------------|------------
+A      | RX - (D9)    | 3
+B      | GND          | GND
 
 ## 3D printed case
 
