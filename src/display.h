@@ -5,10 +5,10 @@
 // #define PxMATRIX_COLOR_DEPTH 8
 
 // Defines the buffer height / the maximum height of the matrix
-#define PxMATRIX_MAX_HEIGHT 64
+#define PxMATRIX_MAX_HEIGHT 32
 
 // Defines the buffer width / the maximum width of the matrix
-#define PxMATRIX_MAX_WIDTH 32
+#define PxMATRIX_MAX_WIDTH 64
 
 // Defines how long we display things by default
 // This defines the 'on' time of the display is us. The larger this number,
@@ -52,17 +52,7 @@ Ticker display_ticker;
 
 #endif
 
-PxMATRIX display(64,32,P_LAT, P_OE,P_A,P_B,P_C,P_D);
-
-// Some standard colors
-uint16_t COLOR_RED = display.color565(255, 0, 0);
-uint16_t COLOR_GREEN = display.color565(0, 255, 0);
-uint16_t COLOR_BLUE = display.color565(0, 0, 255);
-uint16_t COLOR_WHITE = display.color565(255, 255, 255);
-uint16_t COLOR_YELLOW = display.color565(255, 255, 0);
-uint16_t COLOR_CYAN = display.color565(0, 255, 255);
-uint16_t COLOR_MAGENTA = display.color565(255, 0, 255);
-uint16_t COLOR_BLACK = display.color565(0, 0, 0);
+PxMATRIX display(64, 32, P_LAT, P_OE, P_A, P_B, P_C, P_D);
 
 #ifdef ESP8266
 // ISR for display refresh
