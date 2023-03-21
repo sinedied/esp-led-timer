@@ -12,36 +12,22 @@
 
 Total: ~170e (34e/pc)
 
++1 spare?
+
 ## TODO prototype
-- [x] hello world led matrix
-- [w] add button to
-  * change timing (double click)
-  * start/pause (single click)
-  * reset (long click)
-- [x] display snowcamp logo on boot
-- [ ] code UI
-  * 2 timing modes (N)
-  * start stop
-  * 3 time colors [G, Orange, Red, Magenta flash]
-  * Time + border
-  * progress bar bottom
-    * flash 5s on warnings
-- [ ] update logo
-- [ ] screensaver / logo animation
+- [ ] check 1s flash
+- [ ] update logo / info
+- [ ] check timer precision [45min run test]
+- [ ] design enclosure
+- [ ] screensaver / logo animation (snow)
 - [ ] add wifi
   * ui to connect wifi/set name
   * /api/get to fetch current status
   * /api/set to set current status
-- [ ] design enclosure
-
-## UI
-- short press: start/stop
-- long press (2s): reset timer
-- double press: change mode
+  * settings: wifi, name, mode, timer1, timer2, timer3, brightness
+- [ ] minimal server + web UI
+- [ ] easter egg 4x click => game (jump, yeti throw?)
 
 ### Modes
 
-- Snowcamp logo / screensaver (snow falls) and logo animation
-- Timer 1
-- Timer 2
-- Timer 3
+// easter egg 4x click

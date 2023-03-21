@@ -21,7 +21,7 @@ TODO
 
 ## 3D printed case
 
-TODO
+WIP
 
 ## Building project
 
@@ -43,8 +43,11 @@ Modes cycles between the logo/screensaver and the differents timers.
 
 ### Wifi
 
+WIP
 
 ## Changing the bitmaps
 
 To generate the bitmap arrays for images, I used [image2cpp](https://javl.github.io/image2cpp/).
 Make sure to use RGB565 format and change the type to `uint16_t static` instead of `const uint16_t`, otherwise the app will crash.
+
+For drawing the bitmaps I used [PixiArt](https://www.pixilart.com/draw).
