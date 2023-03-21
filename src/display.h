@@ -2,7 +2,7 @@
 #define __DISPLAY_H
 
 // This is how many color levels the display shows - the more the slower the update
-// #define PxMATRIX_COLOR_DEPTH 8
+// #define PxMATRIX_COLOR_DEPTH 5
 
 // Defines the buffer height / the maximum height of the matrix
 #define PxMATRIX_MAX_HEIGHT 32
@@ -13,7 +13,7 @@
 // Defines how long we display things by default
 // This defines the 'on' time of the display is us. The larger this number,
 // the brighter the display. If too large the ESP will crash (10-70 should be fine)
-#define PxMATRIX_DEFAULT_SHOWTIME 20
+#define PxMATRIX_DEFAULT_SHOWTIME 30
 
 // Defines the speed of the SPI bus (reducing this may help if you experience noisy images)
 //#define PxMATRIX_SPI_FREQUENCY 20000000
