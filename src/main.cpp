@@ -3,6 +3,7 @@
 #include "display.h"
 #include "images.h"
 
+#define DEBUG_FAST  1       // Accelerate time x100 for debug
 #define WIDTH       64      // Matrix width
 #define HEIGHT      32      // Matrix height
 #define TIMER_COUNT 2       // Number of different timers enabled (1-3)
@@ -31,7 +32,7 @@ Ticker time_ticker;
 timer_settings timers[] = {
   { 45, 15, 10, 5 },
   { 20, 10, 5, 2 },
-  { 1, 1, 1, 1 }
+  { 10, 5, 2, 1 }
 };
 
 // Some standard colors
@@ -97,7 +98,7 @@ static void onPush() {
     nextMode();
     nextMode();
   } else if (cur_mode != MODE_LOGO && timer_started) {
-    time_ticker.attach(0.01, []() -> void {
+    time_ticker.attach(DEBUG_FAST ? 0.01 : 1.0, []() -> void {
       if (--cur_time <= STOP_AT) {
         resetTimer();
       }
