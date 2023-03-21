@@ -8,7 +8,13 @@
 #define HEIGHT      32      // Matrix height
 #define TIMER_COUNT 2       // Number of different timers enabled (1-3)
 #define STOP_AT     -10*60  // Stop timer at this time (in seconds)
-#define P_BUTTON    D9      // Pin for the hardware button
+
+#ifdef ESP32
+  #define P_BUTTON    3     // Pin for the hardware button
+#endif
+#ifdef ESP8266
+  #define P_BUTTON    D9    // Pin for the hardware button
+#endif
 
 enum app_mode_t {
   MODE_INFO = -1,
@@ -25,7 +31,7 @@ struct timer_settings {
   uint8_t warn3;      // remaining time in minutes
 };
 
-// TODO: adapt for ESP32
+// TODO: for ESP32 use hardware timer
 Ticker time_ticker;
 
 // TODO: allow update from web interface
@@ -139,7 +145,7 @@ void drawProgressbar() {
   } else if (cur_time % 2 == 0) {
     // If time negative, flash message every second
     display.writeFillRect(0, 25, 4, 4, progress_colors[4]);
-    display.writeFillRect(59, 25, 4, 4, progress_colors[4]);
+    display.writeFillRect(60, 25, 4, 4, progress_colors[4]);
 
     display.setTextColor(progress_colors[4]);
     display.setTextSize(1);
@@ -162,7 +168,7 @@ void showTimer() {
   int cur_min = cur_time / 60;
   uint16_t cur_color = progress_colors[0];
   
-  if (cur_time < 0) {
+  if (cur_time <= 0) {
     cur_color = progress_colors[4];
   } else if (cur_min <= timer.warn3) {
     cur_color = progress_colors[3];
