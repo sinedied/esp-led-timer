@@ -5,7 +5,7 @@
 
 #define WIDTH       64      // Matrix width
 #define HEIGHT      32      // Matrix height
-#define TIMER_COUNT 3       // Number of different timers enabled (1-3)
+#define TIMER_COUNT 2       // Number of different timers enabled (1-3)
 #define STOP_AT     -10*60  // Stop timer at this time (in seconds)
 #define P_BUTTON    D9      // Pin for the hardware button
 
@@ -215,7 +215,7 @@ void setup() {
   display_update_enable(true);
 
   // Set the brightness of the panels (default is 255)
-  //display.setBrightness(50);
+  display.setBrightness(255);
 
   pinMode(P_BUTTON, INPUT);
   button.attachClick(onPush);
