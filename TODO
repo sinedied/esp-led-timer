@@ -15,19 +15,12 @@ Total: ~170e (34e/pc)
 +1 spare?
 
 ## TODO prototype
-- [ ] check 1s flash
-- [ ] update logo / info
-- [ ] check timer precision [45min run test]
 - [ ] design enclosure
 - [ ] screensaver / logo animation (snow)
 - [ ] add wifi
   * ui to connect wifi/set name
+  * settings: wifi, name, mode, timer1, timer2, timer3, brightness
   * /api/get to fetch current status
   * /api/set to set current status
-  * settings: wifi, name, mode, timer1, timer2, timer3, brightness
 - [ ] minimal server + web UI
 - [ ] easter egg 4x click => game (jump, yeti throw?)
-
-### Modes
-
-// easter egg 4x click
