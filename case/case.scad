@@ -1,3 +1,6 @@
+// Compile this file into an STL using OpenSCAD:
+// https://openscad.org/
+
 /* [Dimensions] ---------------------------------------- */
 
 // LCD panel width
@@ -87,28 +90,28 @@ lock_tab_size = 20;
 /* [Angle support] ------------------------------------- */
 
 // Target panel angle
-angle = 50;
+angle = 60;
 
 // Support width
 angle_support_width = 20;
 
-// Support min height
-angle_support_min_height = 3;
+// Support extra height
+angle_support_extra_height = 50;
 
-// Support extra depth
-angle_support_extra_depth = 30;
+// Support min depth
+angle_support_min_depth = 3;
 
 // Offset from each side
 angle_support_offset_x = 30;
 
 // Connector height
-support_connector_height = 10;
+support_connector_height = 3;
 
 // Connector width
-support_connector_width = 15;
+support_connector_width = 12;
 
 // Connector depth
-support_connector_depth = 3;
+support_connector_depth = 10;
 
 /* [Other] --------------------------------------------- */
 
@@ -134,11 +137,12 @@ top_view = false;
 right_view = true;
 
 // Show model with assembled pieces (NOT FOR PRINTING!)
-final_view = true;
+final_view = false;
 
 /* [Hidden] */
 
 fudge = .001;
+sep = 20;
 
 total_width = panel_width + tolerance*2 + wall_width*2;
 total_height = panel_height + tolerance*2 + wall_width*2;
@@ -177,21 +181,46 @@ button_support_depth = button_holder_depth - button_hole_depth + (button_diamete
 
 button_support_cut_depth = button_holder_depth - button_support_depth;
 
-echo("button_holder_depth", button_holder_depth);
-echo("button_support_depth", button_support_depth);
-echo("button_support_cut_depth ", button_support_cut_depth);
+angle_height= total_depth * sin(angle);
+angle_depth = sqrt(pow(total_depth, 2) - pow(angle_height, 2));
+angle_support_height = angle_height + angle_support_extra_height;
+angle_support_depth = angle_depth + angle_support_min_depth;
+angle_support_offset_y = angle_support_extra_height/2;
+
+support_left_offset_x = angle_support_width/2 - total_width/2 + angle_support_offset_x;
+support_right_offset_x = -angle_support_width/2 + total_width/2 - angle_support_offset_x;
+connector_y_offset = angle_support_height/2 - angle_height;
 
 $fa = 10;
 $fs = .4;
-$vpr = [
-  top_view ? 22.5 : right_view ? 90 : 67.5,
-  0,
-  top_view ? 0 : right_view ? 90 : 22.5
-];
-$vpd = 700;
-$vpt = [0, 0, 0];
+// $vpr = [
+//   top_view ? 22.5 : right_view ? 90 : 67.5,
+//   0,
+//   top_view ? 0 : right_view ? 90 : 22.5
+// ];
+// $vpd = 700;
+// $vpt = [0, 0, 0];
 
 // ----------------------------------------------------------
+
+module triangle(size, rot = 0) {
+  w = size[0];
+  h = size[1];
+  d = size[2];
+  points = [
+    [0, 0],
+    [0, d],
+    [h, 0],
+  ];
+  path = [
+    [0, 1, 2]
+  ];
+  rotate([90, 0, 270 - rot])
+  translate([-h/2, -d/2, -w/2])
+  linear_extrude(w) { 
+    polygon(points, path);
+  }
+}
 
 module lock_tab(width = true, mirror = false) {
   points = [
@@ -307,21 +336,52 @@ module cable_holder() {
   }
 }
 
-angle = 50;
-angle_support_width = 20;
-angle_support_min_height = 3;
-angle_support_extra_depth = 30;
-angle_support_offset_x = 30;
-support_connector_height = 10;
-support_connector_width = 15;
-support_connector_depth = 3;
-
-module support_hole() {
-
+module support_hole(left = true) {
+  translate([0, -total_height/2, total_depth/2])
+  rotate([-angle, 0, 0])
+  translate([0, angle_support_offset_y, -angle_depth/2 - angle_support_min_depth])
+  translate(left ?
+    [support_left_offset_x, 0, 0] :
+    [support_right_offset_x, 0, 0]
+  )
+  translate([0, -connector_y_offset, angle_support_min_depth])
+  rotate([angle - 90, 0, 0])
+  translate([0, -final_circuit_depth/2 - wall_width, support_connector_depth/2])
+  // Double height tolerance for printing without supports
+  cube([support_connector_width + tolerance*2, support_connector_height + tolerance*4, support_connector_depth + tolerance*2], center=true);
 }
 
-module support() {
+module support(left = true) {
+  translate(left ?
+    [support_left_offset_x, 0, 0] :
+    [support_right_offset_x, 0, 0]
+  )
+  union() {
+    difference() {
+      translate([0, 0, angle_support_depth/2])
+      difference() {
+        cube([angle_support_width, angle_support_height, angle_support_depth], center=true);
 
+        // Angle cut
+        translate([0, 0, angle_support_min_depth/2 + 0.1])
+        rotate([0, 180, 0])
+        triangle([angle_support_width + 1, angle_support_height + 1, angle_depth]);
+      }
+
+      // Case cut
+      translate([0, -angle_support_offset_y, angle_depth/2 + angle_support_min_depth + fudge])
+      rotate([angle, 0, 0])
+      translate([0, total_height/2, -total_depth/2])
+      translate([0, 0, total_depth/2])
+      cube([total_width, total_height, total_depth], center=true);
+    }
+
+    // Connector
+    translate([0, -connector_y_offset, angle_support_min_depth])
+    rotate([angle - 90, 0, 0])
+    translate([0, -final_circuit_depth/2 - wall_width, support_connector_depth/2])
+    cube([support_connector_width, support_connector_height, support_connector_depth], center=true);
+  }
 }
 
 module case() {
@@ -350,6 +410,12 @@ module case() {
         panel_hole_width - inside_border_width*2, panel_hole_height - inside_border_width*2,
         circuit_depth
       ], center=true);
+
+      // Left support hole
+      support_hole(true);
+
+      // Right support hole
+      support_hole(false);
     }
     lock_tabs();
     button_support();
@@ -357,8 +423,24 @@ module case() {
   }
 }
 
-// TODO: support angle + hole
+module split(left = true) {
+
+}
+
 // TODO: split case in half + connectors
 
+translate(final_view ? [0, -angle_support_offset_y, angle_depth/2 + angle_support_min_depth] : [0, 0, 0])
 rotate(final_view ? [angle, 0, 0] : [0, 0, 0])
+translate(final_view ? [0, total_height/2, -total_depth/2] : [0, 0, 0])
 case();
+
+*translate(final_view ? [0, 0, 0] : [0, 0, 0])
+{
+  // Left support
+  translate(final_view ? [0, 0, 0] : [-angle_support_width/2 - sep/2 - support_left_offset_x, 0, 0])
+  support();
+
+  // Right support
+  translate(final_view ? [0, 0, 0] : [angle_support_width/2 + sep/2 - support_right_offset_x, 0, 0])
+  support(false);
+}
