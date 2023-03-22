@@ -12,9 +12,6 @@ panel_depth = 13;
 // Wall thickness
 wall_width = 3;
 
-// Target panel angle
-angle = 50;
-
 // LCD panel back border
 inside_border_width = 11.5;
 
@@ -87,6 +84,32 @@ lock_tab_thickness = 0.4;
 // Lock tabs base width
 lock_tab_size = 20;
 
+/* [Angle support] ------------------------------------- */
+
+// Target panel angle
+angle = 50;
+
+// Support width
+angle_support_width = 20;
+
+// Support min height
+angle_support_min_height = 3;
+
+// Support extra depth
+angle_support_extra_depth = 30;
+
+// Offset from each side
+angle_support_offset_x = 30;
+
+// Connector height
+support_connector_height = 10;
+
+// Connector width
+support_connector_width = 15;
+
+// Connector depth
+support_connector_depth = 3;
+
 /* [Other] --------------------------------------------- */
 
 // Extra space to allow for fit tolerance (reduce for tighter fit)
@@ -105,10 +128,13 @@ top_support_button = false;
 angle_support = false;
 
 // Show top view
-top_view = true;
+top_view = false;
+
+// Show right view
+right_view = true;
 
 // Show model with assembled pieces (NOT FOR PRINTING!)
-final_view = false;
+final_view = true;
 
 /* [Hidden] */
 
@@ -158,9 +184,9 @@ echo("button_support_cut_depth ", button_support_cut_depth);
 $fa = 10;
 $fs = .4;
 $vpr = [
-  top_view ? 22.5 : 67.5,
+  top_view ? 22.5 : right_view ? 90 : 67.5,
   0,
-  top_view ? 0 : 22.5
+  top_view ? 0 : right_view ? 90 : 22.5
 ];
 $vpd = 700;
 $vpt = [0, 0, 0];
@@ -203,16 +229,16 @@ module lock_tab(width = true, mirror = false) {
 
 module lock_tabs() {
   // Top tab
-  translate([0, -lock_tab_thickness/2 + panel_hole_height/2, total_depth - front_bump])
+  translate([0, -lock_tab_thickness/2 + panel_hole_height/2 + fudge, total_depth - front_bump])
   lock_tab(true, false);
   // Bottom tab
-  translate([0, lock_tab_thickness/2 + -panel_hole_height/2, total_depth - front_bump])
+  translate([0, lock_tab_thickness/2 + -panel_hole_height/2 - fudge, total_depth - front_bump])
   lock_tab(true, true);
   // Left tab
-  translate([lock_tab_thickness/2 - panel_hole_width/2, 0, total_depth - front_bump])
+  translate([lock_tab_thickness/2 - panel_hole_width/2 - fudge, 0, total_depth - front_bump])
   lock_tab(false, false);
   // Right tab
-  translate([-lock_tab_thickness/2 + panel_hole_width/2, 0, total_depth - front_bump])
+  translate([-lock_tab_thickness/2 + panel_hole_width/2 + fudge, 0, total_depth - front_bump])
   lock_tab(false, false);
 }
 
@@ -234,6 +260,7 @@ module button_hole() {
 module button_support(bottom = true) {
   top_part_depth_offset = button_holder_depth/2 + 1 - button_connector_depth;
 
+  color("yellow")
   translate(bottom ? [final_button_hole_offset_x, button_holder_offset_y, wall_width - fudge] : [0, 0, 0])
   translate(bottom ? [0, 0, 0] : [0, 0, (button_holder_depth - top_part_depth_offset)/2])
   rotate(bottom ? [0, 0, 0] : [180, 0, 0])
@@ -244,8 +271,8 @@ module button_support(bottom = true) {
       cube([button_holder_width, button_holder_height, button_holder_depth], center=true);
 
       // Space for button swicth
-      translate([0, button_holder_height/2 - button_support_height/2 + fudge, button_support_cut_depth/2 + button_support_depth + fudge])
-      cube([button_holder_width + 1, button_support_height, button_support_cut_depth], center=true);
+      translate([0, button_holder_height/2 - button_support_height/2 + 0.5, button_support_cut_depth/2 + button_support_depth + fudge + 1])
+      cube([button_holder_width + 1, button_support_height + 1, button_support_cut_depth + 1], center=true);
 
       if (bottom && !final_view) {
         // Connector hole
@@ -275,9 +302,26 @@ module cable_holder() {
   difference() {
     cube([cable_holder_width, cable_holder_height, cable_holder_depth], center=true);
 
-    // Cable holde
+    // Cable hole
     cube([cable_diameter + tolerance*2, cable_holder_height + 1, cable_holder_depth + 1], center = true);
   }
+}
+
+angle = 50;
+angle_support_width = 20;
+angle_support_min_height = 3;
+angle_support_extra_depth = 30;
+angle_support_offset_x = 30;
+support_connector_height = 10;
+support_connector_width = 15;
+support_connector_depth = 3;
+
+module support_hole() {
+
+}
+
+module support() {
+
 }
 
 module case() {
@@ -316,4 +360,5 @@ module case() {
 // TODO: support angle + hole
 // TODO: split case in half + connectors
 
+rotate(final_view ? [angle, 0, 0] : [0, 0, 0])
 case();
