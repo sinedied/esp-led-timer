@@ -15,10 +15,12 @@ Total: ~170e (34e/pc)
 ## TODO
 - [x] design enclosure
 - [ ] print enclosure
-  * test print for tolerance cut / horizontal clip [cube with hole]
-  * test print for button clip
+  * [x] test print for tolerance cut / horizontal clip [cube with hole]
+  * [x] test print for button clip
+- [ ] no split case option
 - [ ] screensaver / logo animation (snow)
 - [ ] order final BOM
+- [ ] tutorial instructable?
 
 ## Maybe
 - [ ] add wifi

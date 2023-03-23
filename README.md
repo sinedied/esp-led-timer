@@ -76,6 +76,7 @@ Once loaded, Platform IO will download the platform SDK and dependencies automat
 - **Push button:** start/stop timer
 - **Long press (1s)**: reset timer
 - **Double press**: next mode
+- **Triple press**: change brightness
 
 Modes cycles between the logo/screensaver and the differents timers.
 

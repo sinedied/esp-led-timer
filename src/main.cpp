@@ -227,7 +227,7 @@ void setup() {
   button.attachClick(onPush);
   button.attachDoubleClick(nextMode);
   button.attachMultiClick([]() {
-    if (button.getNumberClicks() == 0) {
+    if (button.getNumberClicks() == 3) {
       brightness = (brightness + 64) % 256;
       display.setBrightness(brightness);
     }
