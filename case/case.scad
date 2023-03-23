@@ -120,7 +120,7 @@ support_connector_depth = 5;
 /* [Other] --------------------------------------------- */
 
 // Extra space to allow for fit tolerance (reduce for tighter fit)
-tolerance = 0.2;
+tolerance = 0.4;
 
 // Split case on Y axis instead of Z axis
 case_split_y = true;
@@ -347,8 +347,7 @@ module support_hole(left = true) {
   translate([0, -connector_y_offset, angle_support_min_depth])
   rotate([angle - 90, 0, 0])
   translate([0, -final_circuit_depth/2 - wall_width, support_connector_depth/2])
-  // Double height tolerance for printing without supports
-  cube([support_connector_width + tolerance*2, support_connector_height + tolerance*4, support_connector_depth + tolerance*2], center=true);
+  cube([support_connector_width + tolerance*3, support_connector_height + tolerance*3, support_connector_depth + tolerance*3], center=true);
 }
 
 module support(left = true) {
@@ -434,7 +433,7 @@ module split(split_height = false) {
     spin=split_height ? [90, 90, 0] : 90,
     cutsize=split_height ? 8 : 6,
     gap= split_height ? 1 : 8,
-    $slop=tolerance
+    $slop=tolerance/2
   )
   children();
 }
