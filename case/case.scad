@@ -1,6 +1,10 @@
 // Compile this file into an STL using OpenSCAD:
 // https://openscad.org/
 
+// Requires BOSL2 to be installed, see:
+// https://github.com/revarbat/BOSL2
+include <BOSL2/std.scad>
+
 /* [Dimensions] ---------------------------------------- */
 
 // LCD panel width
@@ -90,7 +94,7 @@ lock_tab_size = 20;
 /* [Angle support] ------------------------------------- */
 
 // Target panel angle
-angle = 60;
+angle = 65;
 
 // Support width
 angle_support_width = 20;
@@ -124,17 +128,8 @@ left_case = false;
 // Right case only
 right_case = false;
 
-// Top button support only
-top_support_button = false;
-
-// Angle support only
-angle_support = false;
-
-// Show top view
-top_view = false;
-
-// Show right view
-right_view = true;
+// Angle and top button supports only
+support_and_button = false;
 
 // Show model with assembled pieces (NOT FOR PRINTING!)
 final_view = false;
@@ -142,7 +137,7 @@ final_view = false;
 /* [Hidden] */
 
 fudge = .001;
-sep = 20;
+sep = 10;
 
 total_width = panel_width + tolerance*2 + wall_width*2;
 total_height = panel_height + tolerance*2 + wall_width*2;
@@ -193,13 +188,13 @@ connector_y_offset = angle_support_height/2 - angle_height;
 
 $fa = 10;
 $fs = .4;
-// $vpr = [
-//   top_view ? 22.5 : right_view ? 90 : 67.5,
-//   0,
-//   top_view ? 0 : right_view ? 90 : 22.5
-// ];
-// $vpd = 700;
-// $vpt = [0, 0, 0];
+$vpr = [
+  final_view ? 85 : 22.5,
+  0,
+  final_view ? 65 : 0
+];
+$vpd = final_view ? 700 : 800;
+$vpt = final_view ? [0, 0, total_height/2] : [(angle_support_width + sep*5 + button_holder_width)/2, 0, 0];
 
 // ----------------------------------------------------------
 
@@ -423,24 +418,66 @@ module case() {
   }
 }
 
-module split(left = true) {
-
+module split(split_height = false) {
+  req_children($children);
+  partition(
+    size=split_height ? [total_height, total_depth*2, total_width] : [total_width, total_height, total_depth*2],
+    spread=final_view ? 0 : sep + (split_height ? 6 : 8),
+    cutpath="dovetail",
+    spin=split_height ? [90, 90, 0] : 90,
+    cutsize=split_height ? 8 : 6,
+    gap= split_height ? 0 : 8,
+    $slop=tolerance
+  )
+  children();
 }
 
-// TODO: split case in half + connectors
-
-translate(final_view ? [0, -angle_support_offset_y, angle_depth/2 + angle_support_min_depth] : [0, 0, 0])
-rotate(final_view ? [angle, 0, 0] : [0, 0, 0])
-translate(final_view ? [0, total_height/2, -total_depth/2] : [0, 0, 0])
-case();
-
-*translate(final_view ? [0, 0, 0] : [0, 0, 0])
-{
-  // Left support
-  translate(final_view ? [0, 0, 0] : [-angle_support_width/2 - sep/2 - support_left_offset_x, 0, 0])
-  support();
-
-  // Right support
-  translate(final_view ? [0, 0, 0] : [angle_support_width/2 + sep/2 - support_right_offset_x, 0, 0])
-  support(false);
+module only_left_or_right() {
+  req_children($children);
+  if (final_view) {
+    children();
+  } else if (left_case) {
+    translate([total_width/4 + sep, 0, 0])
+    left_half((total_width + sep*2)*2)
+    children();
+  } else if (right_case) {
+    translate([-total_width/4 - sep, 0, 0])
+    right_half((total_width + sep*2)*2)
+    children();
+  } else {
+    children();
+  }
 }
+
+module all() {
+  if (final_view || !support_and_button) {
+    translate(final_view ? [0, -angle_support_offset_y, angle_depth/2 + angle_support_min_depth] : [0, 0, 0])
+    rotate(final_view ? [angle, 0, 0] : [0, 0, 0])
+    translate(final_view ? [0, total_height/2, -total_depth/2] : [0, 0, 0])
+    only_left_or_right()
+    split()
+    case();
+  }
+
+  if (final_view || (!left_case && !right_case)) {
+    translate(final_view || support_and_button ? [0, 0, 0] : [total_width/2 + angle_support_width + sep*2.5, 0, 0])
+    {
+      // Left support
+      translate(final_view ? [0, 0, 0] : [-angle_support_width/2 - sep/2 - support_left_offset_x, 0, 0])
+      support();
+
+      // Right support
+      translate(final_view ? [0, 0, 0] : [angle_support_width/2 + sep/2 - support_right_offset_x, 0, 0])
+      support(false);
+    }
+
+    if (!final_view) {
+      translate(support_and_button ? 
+        [angle_support_width/2 + sep*2.5 + button_holder_width/2, 0, 0] :
+        [total_width/2 + angle_support_width + sep*2.5 + angle_support_width/2 + sep*2.5 + button_holder_width/2, 0, 0])
+      button_support(false);
+    }
+  }
+}
+
+all();
