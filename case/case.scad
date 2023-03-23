@@ -75,7 +75,7 @@ button_offset_x = 95;
 button_extra_height = 10;
 
 // Connector width
-button_connector_width = 2;
+button_connector_width = 3;
 
 // Connector height
 button_connector_height = 6;
@@ -115,12 +115,15 @@ support_connector_height = 3;
 support_connector_width = 12;
 
 // Connector depth
-support_connector_depth = 10;
+support_connector_depth = 5;
 
 /* [Other] --------------------------------------------- */
 
 // Extra space to allow for fit tolerance (reduce for tighter fit)
-tolerance = 0.15;
+tolerance = 0.2;
+
+// Split case on Y axis instead of Z axis
+case_split_y = true;
 
 // Left case only
 left_case = false;
@@ -132,7 +135,7 @@ right_case = false;
 support_and_button = false;
 
 // Show model with assembled pieces (NOT FOR PRINTING!)
-final_view = true;
+final_view = false;
 
 // Test prints, for checking fit and tolerance value
 test_prints = false;
@@ -430,7 +433,7 @@ module split(split_height = false) {
     cutpath="dovetail",
     spin=split_height ? [90, 90, 0] : 90,
     cutsize=split_height ? 8 : 6,
-    gap= split_height ? 0 : 8,
+    gap= split_height ? 1 : 8,
     $slop=tolerance
   )
   children();
@@ -459,7 +462,7 @@ module all() {
     rotate(final_view ? [angle, 0, 0] : [0, 0, 0])
     translate(final_view ? [0, total_height/2, -total_depth/2] : [0, 0, 0])
     only_left_or_right()
-    split()
+    split(case_split_y)
     case();
   }
 
@@ -490,14 +493,14 @@ module test_prints() {
 
   button_support(false);
 
-  translate([-30, -8, 5])
-  split()
+  translate([-30, -8, case_split_y ? 10 : 5])
+  split(case_split_y)
   translate([0, 10, 0])
   difference() {
-    cube([15, 30, 10], center=true);
+    cube([15, case_split_y ? 15 : 30, case_split_y ? 20 : 10], center=true);
     
     translate([0, 8, 3])
-    cube([11, 15, 10], center=true);
+    cube([11, 15, case_split_y ? 20 : 10], center=true);
   }
 }
 
