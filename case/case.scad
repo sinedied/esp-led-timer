@@ -109,13 +109,13 @@ angle_support_min_depth = 3;
 angle_support_offset_x = 30;
 
 // Connector height
-support_connector_height = 3;
+support_connector_height = 5;
 
 // Connector width
 support_connector_width = 12;
 
 // Connector depth
-support_connector_depth = 5;
+support_connector_depth = 6;
 
 /* [Other] --------------------------------------------- */
 
@@ -327,9 +327,9 @@ module button_support(bottom = true) {
 
 module cable_holder() {
   color("yellow")
-  translate([final_usb_offset_x, cable_holder_offset_y, wall_width + cable_holder_depth/2 - fudge])
+  translate([final_usb_offset_x, cable_holder_offset_y, wall_width + cable_holder_depth/2])
   difference() {
-    cube([cable_holder_width, cable_holder_height, cable_holder_depth], center=true);
+    cube([cable_holder_width, cable_holder_height, cable_holder_depth + tolerance*2], center=true);
 
     // Cable hole
     cube([cable_diameter + tolerance*2, cable_holder_height + 1, cable_holder_depth + 1], center = true);
