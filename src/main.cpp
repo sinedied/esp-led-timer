@@ -67,6 +67,7 @@ uint8_t skip_update = 0;
 int8_t cur_mode = MODE_INFO;
 int cur_time = 0; // in seconds
 uint8_t progress_bar_warn[3];
+uint8_t brightness = 255;
 
 void computeProgressBarWarnZones() {
   timer_settings timer = timers[cur_mode - 1];
@@ -219,14 +220,18 @@ void setup() {
   // 64x32 = 1/16 scan mode
   display.begin(16);
   display.clearDisplay();
+  display.setBrightness(brightness);
   display_update_enable(true);
-
-  // Set the brightness of the panels (default is 255)
-  display.setBrightness(255);
 
   pinMode(P_BUTTON, INPUT);
   button.attachClick(onPush);
   button.attachDoubleClick(nextMode);
+  button.attachMultiClick([]() {
+    if (button.getNumberClicks() == 0) {
+      brightness = (brightness + 64) % 256;
+      display.setBrightness(brightness);
+    }
+  });
   button.setPressTicks(1000);
   button.attachLongPressStart(resetTimer);
 
