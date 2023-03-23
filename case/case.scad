@@ -81,7 +81,7 @@ button_connector_width = 2;
 button_connector_height = 6;
 
 // Connector depth
-button_connector_depth = 6;
+button_connector_depth = 5;
 
 /* [Lock tabs] ----------------------------------------- */
 
@@ -132,7 +132,10 @@ right_case = false;
 support_and_button = false;
 
 // Show model with assembled pieces (NOT FOR PRINTING!)
-final_view = false;
+final_view = true;
+
+// Test prints, for checking fit and tolerance value
+test_prints = false;
 
 /* [Hidden] */
 
@@ -285,7 +288,6 @@ module button_support(bottom = true) {
   top_part_depth_offset = button_holder_depth/2 + 1 - button_connector_depth;
 
   color("yellow")
-  translate(bottom ? [final_button_hole_offset_x, button_holder_offset_y, wall_width - fudge] : [0, 0, 0])
   translate(bottom ? [0, 0, 0] : [0, 0, (button_holder_depth - top_part_depth_offset)/2])
   rotate(bottom ? [0, 0, 0] : [180, 0, 0])
   translate(bottom ? [0, 0, 0] : [0, 0, -(button_holder_depth + top_part_depth_offset)/2])
@@ -413,6 +415,8 @@ module case() {
       support_hole(false);
     }
     lock_tabs();
+
+    translate([final_button_hole_offset_x, button_holder_offset_y, wall_width - fudge])
     button_support();
     cable_holder();
   }
@@ -480,4 +484,27 @@ module all() {
   }
 }
 
-all();
+module test_prints() {
+  translate([20, 0, 0])
+  button_support(true);
+
+  button_support(false);
+
+  translate([-30, -8, 5])
+  split()
+  translate([0, 10, 0])
+  difference() {
+    cube([15, 30, 10], center=true);
+    
+    translate([0, 8, 3])
+    cube([11, 15, 10], center=true);
+  }
+}
+
+if (test_prints) {
+  test_prints();
+} else {
+  all();
+}
+
+
