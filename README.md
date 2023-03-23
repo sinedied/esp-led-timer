@@ -2,7 +2,7 @@
 
 > 64x32 led matrix timer for conferences, based on ESP8266/ESP32.
 
-<!-- TODO: add YT unlisted demo video -->
+<!-- TODO: YT unlisted demo video -->
 
 ## Components used
 - 64x32 P4 LED Panel [aliexpress](https://aliexpress.com/item/1005004050044228.html)
@@ -46,12 +46,20 @@ Connect push button pins to the ESP8266 or ESP32 like this:
 
 BUTTON | ESP8266 GPIO | ESP32 GPIO
 -------|--------------|------------
-A      | RX - (D9)    | 3
-B      | GND          | GND
+L      | RX - (D9)    | 3
+R      | GND          | GND
 
 ## 3D printed case
 
-WIP
+![case preview](./docs/case.png)
+
+You'll find a parameterized case model in `case/case.scad`.
+
+You can customize and ompile this file into an STL using [OpenSCAD](https://openscad.org).
+
+I recommend to set `test_print` to true in the customizer ("Other" tab) and first print these test models to test and adapt the `tolerance` value for your printer (higher = more loose fit, smaller = tighter fit).
+
+This model makes use of the BOSL2 library, see [instructions here](https://github.com/revarbat/BOSL2) for how to install it.
 
 ## Building project
 
@@ -71,13 +79,11 @@ Once loaded, Platform IO will download the platform SDK and dependencies automat
 
 Modes cycles between the logo/screensaver and the differents timers.
 
-### Wifi
-
-WIP
-
-## Changing the bitmaps
+## Updating bitmaps
 
 To generate the bitmap arrays for images, I used [image2cpp](https://javl.github.io/image2cpp/).
-Make sure to use RGB565 format and change the type to `uint16_t static` instead of `const uint16_t`, otherwise the app will crash.
+Make sure to set RGB565 format and change the type to `uint16_t static` instead of `const uint16_t`, otherwise the app will crash.
+
+The bitmaps are located in `src/bitmaps.h`.
 
 For drawing the bitmaps I used [PixiArt](https://www.pixilart.com/draw).

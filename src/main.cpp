@@ -1,13 +1,13 @@
 #include <Arduino.h>
 #include <OneButton.h>
 #include "display.h"
-#include "images.h"
+#include "bitmaps.h"
 
 #define DEBUG_FAST  1       // Accelerate time x100 for debug
 #define WIDTH       64      // Matrix width
 #define HEIGHT      32      // Matrix height
 #define TIMER_COUNT 2       // Number of different timers enabled (1-3)
-#define STOP_AT     -10*60  // Stop timer at this time (in seconds)
+#define STOP_AT     -9*60   // Stop overtime timer X seconds
 
 #ifdef ESP32
   #define P_BUTTON    3     // Pin for the hardware button
