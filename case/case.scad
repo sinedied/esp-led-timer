@@ -45,6 +45,9 @@ usb_hole_offset_y = 18;
 // Cable diameter
 cable_diameter = 2.8;
 
+// Cable holder width
+cable_holder_width = 30;
+
 // Cable holder height
 cable_holder_height = 5;
 
@@ -159,7 +162,6 @@ final_usb_offset_x = panel_width/2 - usb_hole_offset_x;
 final_usb_offset_y = -panel_height/2 + usb_hole_offset_y;
 final_usb_depth = wall_width + tolerance*2;
 
-cable_holder_width = usb_hole_width;
 cable_holder_offset_y = final_usb_offset_y + usb_hole_height/2 + cable_holder_height/2;
 cable_holder_depth = final_circuit_depth;
 
