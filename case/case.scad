@@ -198,13 +198,13 @@ connector_y_offset = angle_support_height/2 - angle_height;
 
 $fa = 10;
 $fs = .4;
-// $vpr = [
-//   final_view ? 85 : 22.5,
-//   0,
-//   final_view ? 65 : 0
-// ];
-// $vpd = final_view ? 700 : 800;
-// $vpt = final_view ? [0, 0, total_height/2] : [(angle_support_width + sep*5 + button_holder_width)/2, 0, 0];
+$vpr = [
+  final_view ? 85 : 22.5,
+  0,
+  final_view ? 65 : 0
+];
+$vpd = final_view ? 700 : 800;
+$vpt = final_view ? [0, 0, total_height/2] : [(angle_support_width + sep*5 + button_holder_width)/2, 0, 0];
 
 // ----------------------------------------------------------
 
@@ -304,7 +304,7 @@ module button_support(bottom = true) {
       cube([button_holder_width, button_holder_height, button_holder_depth], center=true);
 
       // Space for button swicth
-      translate([0, button_holder_height/2 - button_support_height/2 + 0.5, button_support_cut_depth/2 + button_support_depth + fudge + 1])
+      translate([0, (bottom ? 0: tolerance) + button_holder_height/2 - button_support_height/2 + 1, button_support_cut_depth/2 + button_support_depth + fudge + 1])
       cube([button_holder_width + 1, button_support_height + 1, button_support_cut_depth + 1], center=true);
 
       if (bottom && !final_view) {
@@ -326,11 +326,9 @@ module button_support(bottom = true) {
       translate([0, -button_support_height/2, button_holder_depth/2])
       cube([button_connector_width, button_connector_height, button_connector_depth*2], center=true);
 
-      // TODO calc depth, +2x tolerance front
-
       // Front tab
-      translate([0, button_holder_height/2 - button_support_height/2 + 0.5 - wall_width/2, button_holder_depth/2])
-      cube([button_holder_width, wall_width - tolerance*2, button_holder_depth], center=true);
+      translate([0, button_holder_height/2 - wall_width/2 + tolerance*2 + fudge, button_holder_depth/2 + button_support_depth/2 + tolerance/2])
+      cube([button_holder_width, wall_width + tolerance*2, button_holder_depth - button_support_depth - tolerance], center=true);
     }
   }
 }
@@ -519,8 +517,6 @@ if (test_prints) {
   all();
 }
 
-
 // TODO: fix space before button (wall)
 // TODO: fix button holder weight
-// TODO: Add wall in front of button top
 // TODO: cable holder hole side, less height
