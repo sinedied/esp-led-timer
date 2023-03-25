@@ -8,7 +8,7 @@ include <BOSL2/std.scad>
 /* [Dimensions] ---------------------------------------- */
 
 // LCD panel width
-panel_width = 260;
+panel_width = 256;
 
 // LCD panel height
 panel_height = 128;
@@ -26,7 +26,7 @@ inside_border_width = 11.5;
 front_bump = 2;
 
 // Space behind panel for the circuit
-circuit_depth = 15;
+circuit_depth = 17;
 
 /* [Hole for usb cable] -------------------------------- */
 
@@ -89,10 +89,12 @@ button_connector_depth = 5;
 /* [Lock tabs] ----------------------------------------- */
 
 // Lock tabs thickness
-lock_tab_thickness = 0.4;
+lock_tab_thickness = 0.8;
 
 // Lock tabs base width
 lock_tab_size = 20;
+
+// TODO screws? 7 offset, 2.5diam
 
 /* [Angle support] ------------------------------------- */
 
@@ -165,7 +167,7 @@ final_usb_depth = wall_width + tolerance*2;
 cable_holder_offset_y = final_usb_offset_y + usb_hole_height/2 + cable_holder_height/2;
 cable_holder_depth = final_circuit_depth;
 
-button_hole_width = max(button_hold_size + button_side_space, button_diameter + tolerance*2);
+button_hole_width = max(button_hold_size + button_side_space*2, button_diameter + tolerance*2);
 button_hole_height = inside_border_width + fudge;
 button_hole_depth = button_diameter + tolerance*2;
 button_ext_diameter = button_inner_diameter + tolerance*2;
@@ -196,13 +198,13 @@ connector_y_offset = angle_support_height/2 - angle_height;
 
 $fa = 10;
 $fs = .4;
-$vpr = [
-  final_view ? 85 : 22.5,
-  0,
-  final_view ? 65 : 0
-];
-$vpd = final_view ? 700 : 800;
-$vpt = final_view ? [0, 0, total_height/2] : [(angle_support_width + sep*5 + button_holder_width)/2, 0, 0];
+// $vpr = [
+//   final_view ? 85 : 22.5,
+//   0,
+//   final_view ? 65 : 0
+// ];
+// $vpd = final_view ? 700 : 800;
+// $vpt = final_view ? [0, 0, total_height/2] : [(angle_support_width + sep*5 + button_holder_width)/2, 0, 0];
 
 // ----------------------------------------------------------
 
@@ -323,6 +325,12 @@ module button_support(bottom = true) {
       // Connector
       translate([0, -button_support_height/2, button_holder_depth/2])
       cube([button_connector_width, button_connector_height, button_connector_depth*2], center=true);
+
+      // TODO calc depth, +2x tolerance front
+
+      // Front tab
+      translate([0, button_holder_height/2 - button_support_height/2 + 0.5 - wall_width/2, button_holder_depth/2])
+      cube([button_holder_width, wall_width - tolerance*2, button_holder_depth], center=true);
     }
   }
 }
@@ -512,3 +520,7 @@ if (test_prints) {
 }
 
 
+// TODO: fix space before button (wall)
+// TODO: fix button holder weight
+// TODO: Add wall in front of button top
+// TODO: cable holder hole side, less height
