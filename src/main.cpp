@@ -3,11 +3,12 @@
 #include "display.h"
 #include "bitmaps.h"
 
-#define DEBUG_FAST  1       // Accelerate time x100 for debug
+#define DEBUG_FAST  0       // Accelerate time x100 for debug
 #define WIDTH       64      // Matrix width
 #define HEIGHT      32      // Matrix height
 #define TIMER_COUNT 2       // Number of different timers enabled (1-3)
 #define STOP_AT     -9*60   // Stop overtime timer X seconds
+#define BRIGHTNESS  127     // Default brightness
 
 #ifdef ESP32
   #define P_BUTTON    3     // Pin for the hardware button
@@ -19,9 +20,7 @@
 enum app_mode_t {
   MODE_INFO = -1,
   MODE_LOGO = 0,
-  MODE_TIMER_1,
-  MODE_TIMER_2,
-  MODE_TIMER_3
+  MODE_TIMER_N,
 };
 
 struct timer_settings {
@@ -67,7 +66,8 @@ uint8_t skip_update = 0;
 int8_t cur_mode = MODE_INFO;
 int cur_time = 0; // in seconds
 uint8_t progress_bar_warn[3];
-uint8_t brightness = 255;
+uint8_t brightness = BRIGHTNESS;
+bool fast_time = DEBUG_FAST;
 
 void computeProgressBarWarnZones() {
   timer_settings timer = timers[cur_mode - 1];
@@ -105,7 +105,7 @@ static void onPush() {
     nextMode();
     nextMode();
   } else if (cur_mode != MODE_LOGO && timer_started) {
-    time_ticker.attach(DEBUG_FAST ? 0.01 : 1.0, []() -> void {
+    time_ticker.attach(fast_time ? 0.01 : 1.0, []() -> void {
       if (--cur_time <= STOP_AT) {
         resetTimer();
       }
@@ -227,9 +227,12 @@ void setup() {
   button.attachClick(onPush);
   button.attachDoubleClick(nextMode);
   button.attachMultiClick([]() {
-    if (button.getNumberClicks() == 3) {
+    int clicks = button.getNumberClicks();
+    if (clicks == 3) {
       brightness = (brightness + 64) % 256;
       display.setBrightness(brightness);
+    } else if (clicks == 5) {
+      fast_time = !fast_time;
     }
   });
   button.setPressTicks(1000);
