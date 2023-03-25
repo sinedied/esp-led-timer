@@ -9,6 +9,7 @@
 #define TIMER_COUNT 2       // Number of different timers enabled (1-3)
 #define STOP_AT     -9*60   // Stop overtime timer X seconds
 #define BRIGHTNESS  127     // Default brightness
+#define SKIP_UPDATE 33      // Update every 33 ticks (~30fps)
 
 #ifdef ESP32
   #define P_BUTTON    3     // Pin for the hardware button
@@ -68,6 +69,7 @@ int cur_time = 0; // in seconds
 uint8_t progress_bar_warn[3];
 uint8_t brightness = BRIGHTNESS;
 bool fast_time = DEBUG_FAST;
+uint8_t cycle = 0;
 
 void computeProgressBarWarnZones() {
   timer_settings timer = timers[cur_mode - 1];
@@ -143,12 +145,16 @@ void drawProgressbar() {
     // Draw white triangle
     display.writeFastHLine(curr - 1, 26, 3, COLOR_WHITE);
     display.writePixel(curr, 27, COLOR_WHITE);
-  } else if (cur_time % 2 == 0) {
-    // If time negative, flash message every second
-    display.writeFillRect(0, 25, 4, 4, progress_colors[4]);
-    display.writeFillRect(60, 25, 4, 4, progress_colors[4]);
+  } else {
+    cycle = (cycle + 1) % SKIP_UPDATE;
+    float b = sin(PI * cycle / SKIP_UPDATE);  // 1s cycle
+    uint16_t color = display.color565(223 * b, 0, 191 * b);
 
-    display.setTextColor(progress_colors[4]);
+    // If time negative, flash message every second
+    display.writeFillRect(0, 25, 4, 4, color);
+    display.writeFillRect(60, 25, 4, 4, color);
+
+    display.setTextColor(color);
     display.setTextSize(1);
     display.setCursor(5, 23);
     display.print("TIME OVER");
@@ -161,8 +167,7 @@ void showTimer() {
     return;
   }
 
-  // Update every 33 ticks (~30fps)
-  skip_update = 33; 
+  skip_update = SKIP_UPDATE; 
   display.fillScreen(COLOR_BLACK);
 
   timer_settings timer = timers[cur_mode - 1];
