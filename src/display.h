@@ -13,7 +13,7 @@
 // Defines how long we display things by default
 // This defines the 'on' time of the display is us. The larger this number,
 // the brighter the display. If too large the ESP will crash (10-70 should be fine)
-#define PxMATRIX_DEFAULT_SHOWTIME 30
+#define PxMATRIX_DEFAULT_SHOWTIME 40
 
 // Defines the speed of the SPI bus (reducing this may help if you experience noisy images)
 #define PxMATRIX_SPI_FREQUENCY 10000000

@@ -244,7 +244,7 @@ void showLogo() {
 
 void showInfo() {
   if (need_update) {
-      drawBitmap(0, 0, bmp_manual_64x32, 64, 32);
+    drawBitmap(0, 0, bmp_manual_64x32, 64, 32);
     display.showBuffer();
   }
   need_update = false;
