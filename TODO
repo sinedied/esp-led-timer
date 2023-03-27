@@ -1,26 +1,9 @@
-# Final BOM x5
-- [5] 64x32 P4 LED Panel [aliexpress](https://fr.aliexpress.com/item/1005004050044228.html)
-- [5] ESP32 CH340 Type-C [aliexpress](https://fr.aliexpress.com/item/1005004616357165.html)
-- [5] 2m USB-C cable [aliexpress](https://fr.aliexpress.com/item/1005004215823904.html)
-- [5] 20W USB-C Charger [aliexpress](https://fr.aliexpress.com/item/1005001875465341.html)
-- [2] 10cm M-F Dupont Cable 40pin [aliexpress](https://fr.aliexpress.com/item/1005004073424751.html)
-- [1] 20cm M-M Dupont Cable 40pin [aliexpress](https://fr.aliexpress.com/item/1005004073424751.html)
-- [1] Push button kit [aliexpress](https://fr.aliexpress.com/item/1005005012663073.html)
-- [1] Eryone 1kg PLA [amazon](https://www.amazon.fr/gp/product/B08GCJ32MH/)
-
-- USB Battery? 10mah ~20h-50h
-
-Total: ~170e (34e/pc)
-
 ## TODO
-- [x] design enclosure
-- [ ] print enclosure
-  * [x] test print for tolerance cut / horizontal clip [cube with hole]
-  * [x] test print for button clip
+- [ ] fix enclosure
 - [ ] no split case option
-- [ ] screensaver / logo animation (snow)
-- [ ] order final BOM
+- [ ] assembly photos
 - [ ] tutorial instructable?
+- [ ] auto screen saver after 5min stopped?
 
 ## Maybe
 - [ ] add wifi
