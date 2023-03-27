@@ -2,6 +2,7 @@
 #include <OneButton.h>
 #include "display.h"
 #include "bitmaps.h"
+#include "extra.h"
 
 #define DEBUG_FAST  0       // Accelerate time x100 for debug
 #define WIDTH       64      // Matrix width
@@ -9,7 +10,7 @@
 #define TIMER_COUNT 2       // Number of different timers enabled (1-3)
 #define STOP_AT     -9*60   // Stop overtime timer X seconds
 #define BRIGHTNESS  127     // Default brightness
-#define SKIP_UPDATE 33      // Update every 33 ticks (~30fps)
+#define SKIP_UPDATE 60      // Update every 60 cycles
 
 #ifdef ESP32
   #define P_BUTTON    3     // Pin for the hardware button
@@ -92,8 +93,8 @@ static void resetTimer() {
   time_ticker.detach();
 }
 
-static void nextMode() {
-  cur_mode = (cur_mode + 1) % (TIMER_COUNT + 1);
+static void nextMode(int8_t mode = -100) {
+  cur_mode = mode == -100 ? (cur_mode + 1) % (TIMER_COUNT + 1) : mode;
   resetTimer();
   need_update = true;
   skip_update = 0;
@@ -103,9 +104,8 @@ static void nextMode() {
 static void onPush() {
   timer_started = !timer_started;
 
-  if (cur_mode == MODE_INFO) {
-    nextMode();
-    nextMode();
+  if (cur_mode == MODE_INFO || cur_mode == MODE_LOGO) {
+    nextMode(MODE_TIMER_N);
   } else if (cur_mode != MODE_LOGO && timer_started) {
     time_ticker.attach(fast_time ? 0.01 : 1.0, []() -> void {
       if (--cur_time <= STOP_AT) {
@@ -146,8 +146,8 @@ void drawProgressbar() {
     display.writeFastHLine(curr - 1, 26, 3, COLOR_WHITE);
     display.writePixel(curr, 27, COLOR_WHITE);
   } else {
-    cycle = (cycle + 1) % SKIP_UPDATE;
-    float b = sin(PI * cycle / SKIP_UPDATE);  // 1s cycle
+    cycle = (cycle + 1) % (SKIP_UPDATE);
+    float b = sin(PI * cycle / (SKIP_UPDATE));  // ~1s cycle
     uint16_t color = display.color565(223 * b, 0, 191 * b);
 
     // If time negative, flash message every second
@@ -202,18 +202,49 @@ void showTimer() {
 }
 
 void showLogo() {
-  if (need_update) {
-    display.fillScreen(COLOR_BLACK);
+  if (cur_mode == MODE_LOGO) {
+    if (need_update) {
+      // Randomize snowflakes
+      for (uint8_t i = 0; i < SNOWFLAKE_COUNT; i++) {
+        newSnowFlake(snowflakes[i]);
+      }
+      need_update = false;
+    }
+
+    if (skip_update > 0) {
+      skip_update--;
+      return;
+    }
+
+    skip_update = SKIP_UPDATE;
     drawBitmap(0, 0, bmp_snowcamp_64x32, 64, 32);
+    cycle++;
+
+    for (uint8_t i = 0; i < SNOWFLAKE_COUNT; i++) {
+      if (snowflakes[i].y >= 0) {
+        display.drawPixelRGB888(snowflakes[i].x, snowflakes[i].y, snowflakes[i].b * .5, snowflakes[i].b, snowflakes[i].b);
+      }
+      if ((cycle % snowflakes[i].s) == 0) {
+        snowflakes[i].y++;
+      }
+      if (snowflakes[i].y == 32) {
+        newSnowFlake(snowflakes[i]);
+      }
+    }
+
     display.showBuffer();
+  } else {
+    if (need_update) {
+      drawBitmap(0, 0, bmp_snowcamp_64x32, 64, 32);
+      display.showBuffer();
+    }
+    need_update = false;
   }
-  need_update = false;
 }
 
 void showInfo() {
   if (need_update) {
-    display.fillScreen(COLOR_BLACK);
-    drawBitmap(0, 0, bmp_manual_64x32, 64, 32);
+      drawBitmap(0, 0, bmp_manual_64x32, 64, 32);
     display.showBuffer();
   }
   need_update = false;
@@ -226,11 +257,12 @@ void setup() {
   display.begin(16);
   display.clearDisplay();
   display.setBrightness(brightness);
+  display.setTextWrap(false);
   display_update_enable(true);
 
   pinMode(P_BUTTON, INPUT);
   button.attachClick(onPush);
-  button.attachDoubleClick(nextMode);
+  button.attachDoubleClick([]() { nextMode(); });
   button.attachMultiClick([]() {
     int clicks = button.getNumberClicks();
     if (clicks == 3) {

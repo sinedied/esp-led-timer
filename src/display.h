@@ -2,7 +2,7 @@
 #define __DISPLAY_H
 
 // This is how many color levels the display shows - the more the slower the update
-// #define PxMATRIX_COLOR_DEPTH 5
+#define PxMATRIX_COLOR_DEPTH 3
 
 // Defines the buffer height / the maximum height of the matrix
 #define PxMATRIX_MAX_HEIGHT 32
