@@ -158,9 +158,6 @@ final_view = false;
 // Test prints, for checking fit and tolerance value
 test_prints = false;
 
-// Do no force fixed viewpoint
-free_view = false;
-
 /* [Hidden] */
 
 fudge = .001;
@@ -211,15 +208,13 @@ connector_y_offset = angle_support_height/2 - angle_height;
 
 $fa = 10;
 $fs = .4;
-if (!free_view) {
-  $vpr = [
-    final_view ? 85 : 22.5,
-    0,
-    final_view ? 65 : 0
-  ];
-  $vpd = final_view ? 700 : 800;
-  $vpt = final_view ? [0, 0, total_height/2] : [(angle_support_width + sep*5 + button_holder_width)/2, 0, 0];
-}
+$vpr = [
+  final_view ? 85 : 22.5,
+  0,
+  final_view ? 65 : 0
+];
+$vpd = final_view ? 700 : 800;
+$vpt = final_view ? [0, 0, total_height/2] : [(angle_support_width + sep*5 + button_holder_width)/2, 0, 0];
 
 // ----------------------------------------------------------
 
@@ -576,5 +571,3 @@ if (test_prints) {
 } else {
   all();
 }
-
-// Reprint support, bug support behind > extra circuit space
