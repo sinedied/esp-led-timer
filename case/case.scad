@@ -158,7 +158,7 @@ final_view = false;
 // Test prints, for checking fit and tolerance value
 test_prints = false;
 
-// Do no force fixed viewpoints
+// Do no force fixed viewpoint
 free_view = false;
 
 /* [Hidden] */
