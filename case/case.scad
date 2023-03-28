@@ -68,7 +68,7 @@ button_push_height = 8.5;
 // Button hole centered offset from right side of the panel
 button_offset_x = 95;
 
-// Extra button support height
+// Extra height for button support
 button_extra_height = 10;
 
 // Connector width
@@ -158,6 +158,9 @@ final_view = false;
 // Test prints, for checking fit and tolerance value
 test_prints = false;
 
+// Do no force fixed viewpoints
+free_view = false;
+
 /* [Hidden] */
 
 fudge = .001;
@@ -192,8 +195,8 @@ button_holder_depth = final_circuit_depth;
 button_holder_offset_y = -button_holder_height/2 + panel_hole_height/2 - button_push_height;
 
 button_support_height = button_total_height - button_push_height;
-button_support_depth = button_holder_depth - button_hole_depth + (button_diameter - button_hold_size);
 
+button_support_depth = button_holder_depth - button_hole_depth + (button_diameter - button_hold_size);
 button_support_cut_depth = button_holder_depth - button_support_depth;
 
 angle_height= total_depth * sin(angle);
@@ -208,13 +211,15 @@ connector_y_offset = angle_support_height/2 - angle_height;
 
 $fa = 10;
 $fs = .4;
-$vpr = [
-  final_view ? 85 : 22.5,
-  0,
-  final_view ? 65 : 0
-];
-$vpd = final_view ? 700 : 800;
-$vpt = final_view ? [0, 0, total_height/2] : [(angle_support_width + sep*5 + button_holder_width)/2, 0, 0];
+if (!free_view) {
+  $vpr = [
+    final_view ? 85 : 22.5,
+    0,
+    final_view ? 65 : 0
+  ];
+  $vpd = final_view ? 700 : 800;
+  $vpt = final_view ? [0, 0, total_height/2] : [(angle_support_width + sep*5 + button_holder_width)/2, 0, 0];
+}
 
 // ----------------------------------------------------------
 
@@ -571,7 +576,5 @@ if (test_prints) {
 } else {
   all();
 }
-
-// TODO: fix space before button (wall)
 
 // Reprint support, bug support behind > extra circuit space
