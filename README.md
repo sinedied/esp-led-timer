@@ -81,6 +81,8 @@ Once loaded, Platform IO will download the platform SDK and dependencies automat
 
 Modes cycles between the logo/screensaver and the differents timers.
 
+When the timer is not running, the logo/screensaver will be automatically activated after 5 minutes without touching any button.
+
 ## Updating bitmaps
 
 To generate the bitmap arrays for images, I used [image2cpp](https://javl.github.io/image2cpp/).
