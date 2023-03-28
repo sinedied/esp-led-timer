@@ -72,8 +72,6 @@ Once loaded, Platform IO will download the platform SDK and dependencies automat
 
 ## How to use
 
-### 1-button interface
-
 - **Push button:** start/stop timer
 - **Long press (1s)**: reset timer
 - **Double press**: next mode
