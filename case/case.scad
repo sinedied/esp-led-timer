@@ -45,12 +45,6 @@ usb_hole_offset_y = 18;
 // Cable diameter
 cable_diameter = 2.8;
 
-// Cable holder width
-cable_holder_width = 30;
-
-// Cable holder height
-cable_holder_height = 5;
-
 /* [Space and support for button] ---------------------- */
 
 // Push button inner diameter
@@ -182,9 +176,6 @@ final_circuit_depth = total_depth - panel_hole_depth + tolerance*2 - wall_width;
 final_usb_offset_x = panel_width/2 - usb_hole_offset_x;
 final_usb_offset_y = -panel_height/2 + usb_hole_offset_y;
 final_usb_depth = wall_width + tolerance*2;
-
-cable_holder_offset_y = final_usb_offset_y + usb_hole_height/2 + cable_holder_height/2;
-cable_holder_depth = final_circuit_depth;
 
 button_hole_width = max(button_hold_size + button_side_space*2, button_diameter + tolerance*2);
 button_hole_height = inside_border_width + fudge;
@@ -399,17 +390,6 @@ module button_support(bottom = true) {
   }
 }
 
-module cable_holder() {
-  color("yellow")
-  translate([final_usb_offset_x, cable_holder_offset_y, wall_width + cable_holder_depth/2])
-  difference() {
-    cube([cable_holder_width, cable_holder_height, cable_holder_depth + tolerance*2], center=true);
-
-    // Cable hole
-    cube([cable_diameter + tolerance*2, cable_holder_height + 1, cable_holder_depth + 1], center = true);
-  }
-}
-
 module support_hole(left = true) {
   translate([0, -total_height/2, total_depth/2])
   rotate([-angle, 0, 0])
@@ -500,7 +480,6 @@ module case() {
 
     translate([final_button_hole_offset_x, button_holder_offset_y, wall_width - fudge])
     button_support();
-    cable_holder();
   }
 }
 
@@ -594,6 +573,5 @@ if (test_prints) {
 }
 
 // TODO: fix space before button (wall)
-// TODO: cable holder hole side, less height
 
 // Reprint support, bug support behind > extra circuit space
