@@ -86,7 +86,10 @@ button_connector_height = 6;
 // Connector depth
 button_connector_depth = 5;
 
-/* [Lock tabs] ----------------------------------------- */
+/* [Panel fixation] ------------------------------------ */
+
+// Use screws to fix the panel instead of tabs
+use_screws = false;
 
 // Lock tabs thickness
 lock_tab_thickness = 0.8;
@@ -94,7 +97,17 @@ lock_tab_thickness = 0.8;
 // Lock tabs base width
 lock_tab_size = 20;
 
-// TODO screws? 7 offset, 2.5diam
+// Screw diameter
+screw_diameter = 2.5;
+
+// Screw head diameter
+screw_head_diameter = 6.5;
+
+// Screw head depth
+screw_head_depth = 5;
+
+// Screw hole position offset from the panel edge
+screw_offset = 7;
 
 /* [Angle support] ------------------------------------- */
 
@@ -125,10 +138,16 @@ support_connector_depth = 6;
 /* [Other] --------------------------------------------- */
 
 // Extra space to allow for fit tolerance (reduce for tighter fit)
-tolerance = 0.4;
+tolerance = 0.35;
+
+// Fit tolerance for the split parts (reduce for tighter fit)
+split_tolerance = 0.2;
 
 // Split case on Y axis instead of Z axis
 case_split_y = true;
+
+// Disable case split (if your printer can handle it)
+case_no_split = false;
 
 // Left case only
 left_case = false;
@@ -276,6 +295,53 @@ module lock_tabs() {
   lock_tab(false, false);
 }
 
+module screws_hole() {
+  inner_diameter = screw_diameter + tolerance*2;
+  outer_diameter = screw_head_diameter + tolerance*2;
+  width_offset = total_width/2 - wall_width/2 - screw_offset;
+  height_offset = total_height/2 - wall_width/2 - screw_offset;
+
+  // Top left
+  translate([-width_offset, height_offset, 0]) {
+    union() {
+      cylinder(total_depth*2 + 1, d=inner_diameter, center=true);
+
+      translate([0, 0, screw_head_depth/2 - fudge])
+      cylinder(screw_head_depth, d=outer_diameter, center=true);
+    }
+  }
+
+  // Top right
+  translate([width_offset, height_offset, 0]) {
+    union() {
+      cylinder(total_depth*2 + 1, d=inner_diameter, center=true);
+
+      translate([0, 0, screw_head_depth/2 - fudge])
+      cylinder(screw_head_depth, d=outer_diameter, center=true);
+    }
+  }
+
+  // Bottom left
+  translate([-width_offset, -height_offset, 0]) {
+    union() {
+      cylinder(total_depth*2 + 1, d=inner_diameter, center=true);
+
+      translate([0, 0, screw_head_depth/2 - fudge])
+      cylinder(screw_head_depth, d=outer_diameter, center=true);
+    }
+  }
+
+  // Bottom right
+  translate([width_offset, -height_offset, 0]) {
+    union() {
+      cylinder(total_depth*2 + 1, d=inner_diameter, center=true);
+
+      translate([0, 0, screw_head_depth/2 - fudge])
+      cylinder(screw_head_depth, d=outer_diameter, center=true);
+    }
+  }
+}
+
 module button_hole() {
   diff_diameter = button_hole_depth - button_ext_diameter;
   union() {
@@ -327,8 +393,8 @@ module button_support(bottom = true) {
       cube([button_connector_width, button_connector_height, button_connector_depth*2], center=true);
 
       // Front tab
-      translate([0, button_holder_height/2 - wall_width/2 + tolerance*2 + fudge, button_holder_depth/2 + button_support_depth/2 + tolerance/2])
-      cube([button_holder_width, wall_width + tolerance*2, button_holder_depth - button_support_depth - tolerance], center=true);
+      translate([0, button_holder_height/2 - wall_width/4 + tolerance*2 + fudge, button_holder_depth/2 + button_support_depth/2 + tolerance/2])
+      cube([button_holder_width, wall_width/2 + tolerance*2, button_holder_depth - button_support_depth - tolerance], center=true);
     }
   }
 }
@@ -355,7 +421,7 @@ module support_hole(left = true) {
   translate([0, -connector_y_offset, angle_support_min_depth])
   rotate([angle - 90, 0, 0])
   translate([0, -final_circuit_depth/2 - wall_width, support_connector_depth/2])
-  cube([support_connector_width + tolerance*3, support_connector_height + tolerance*3, support_connector_depth + tolerance*3], center=true);
+  cube([support_connector_width + tolerance*2, support_connector_height + tolerance*3, support_connector_depth + tolerance*2], center=true);
 }
 
 module support(left = true) {
@@ -423,8 +489,14 @@ module case() {
 
       // Right support hole
       support_hole(false);
+
+      if (use_screws) {
+        screws_hole();
+      }
     }
-    lock_tabs();
+    if (!use_screws) {
+      lock_tabs();
+    }
 
     translate([final_button_hole_offset_x, button_holder_offset_y, wall_width - fudge])
     button_support();
@@ -434,16 +506,20 @@ module case() {
 
 module split(split_height = false) {
   req_children($children);
-  partition(
-    size=split_height ? [total_height, total_depth*2, total_width] : [total_width, total_height, total_depth*2],
-    spread=final_view ? 0 : sep + (split_height ? 6 : 8),
-    cutpath="dovetail",
-    spin=split_height ? [90, 90, 0] : 90,
-    cutsize=split_height ? 8 : 6,
-    gap= split_height ? 1 : 8,
-    $slop=tolerance/2
-  )
-  children();
+  if (case_no_split) {
+    children();
+  } else {
+    partition(
+      size=split_height ? [total_height, total_depth*2, total_width] : [total_width, total_height, total_depth*2],
+      spread=final_view ? 0 : sep + (split_height ? 6 : 8),
+      cutpath="dovetail",
+      spin=split_height ? [90, 90, 0] : 90,
+      cutsize=split_height ? 8 : 6,
+      gap= split_height ? 1 : 8,
+      $slop=split_tolerance
+    )
+    children();
+  }
 }
 
 module only_left_or_right() {
@@ -518,5 +594,6 @@ if (test_prints) {
 }
 
 // TODO: fix space before button (wall)
-// TODO: fix button holder weight
 // TODO: cable holder hole side, less height
+
+// Reprint support, bug support behind > extra circuit space
