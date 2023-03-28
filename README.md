@@ -52,7 +52,7 @@ R      | GND          | GND
 
 ## 3D printed case
 
-![case preview](./docs/case.png)
+![case preview](./case/case.png)
 
 You'll find a parameterized case model in `case/case.scad`.
 
