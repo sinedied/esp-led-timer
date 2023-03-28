@@ -11,6 +11,7 @@
 #define STOP_AT     -9*60   // Stop overtime timer X seconds
 #define BRIGHTNESS  127     // Default brightness
 #define SKIP_UPDATE 60      // Update every 60 cycles
+#define IDLE_TIME   5*60    // Idle time before going to screesaver (logo)
 
 #ifdef ESP32
   #define P_BUTTON    3     // Pin for the hardware button
@@ -20,6 +21,7 @@
 #endif
 
 enum app_mode_t {
+  MODE_UNDEF = -100,
   MODE_INFO = -1,
   MODE_LOGO = 0,
   MODE_TIMER_N,
@@ -34,6 +36,7 @@ struct timer_settings {
 
 // TODO: for ESP32 use hardware timer
 Ticker time_ticker;
+Ticker screensaver_ticker;
 
 // TODO: allow update from web interface
 timer_settings timers[] = {
@@ -66,11 +69,24 @@ bool timer_started = false;
 bool need_update = true;
 uint8_t skip_update = 0;
 int8_t cur_mode = MODE_INFO;
+int8_t prev_mode = MODE_UNDEF;
 int cur_time = 0; // in seconds
 uint8_t progress_bar_warn[3];
 uint8_t brightness = BRIGHTNESS;
 bool fast_time = DEBUG_FAST;
 uint8_t cycle = 0;
+
+static void nextMode(int8_t mode);
+
+void resetScreensaverTimer() {
+  screensaver_ticker.detach();
+  if (cur_mode != MODE_LOGO && !timer_started) {
+    screensaver_ticker.once(IDLE_TIME, []() -> void {
+      prev_mode = cur_mode;
+      nextMode(MODE_LOGO);
+    });
+  }
+}
 
 void computeProgressBarWarnZones() {
   timer_settings timer = timers[cur_mode - 1];
@@ -91,10 +107,16 @@ static void resetTimer() {
 
   timer_started = false;
   time_ticker.detach();
+  resetScreensaverTimer();
 }
 
-static void nextMode(int8_t mode = -100) {
-  cur_mode = mode == -100 ? (cur_mode + 1) % (TIMER_COUNT + 1) : mode;
+static void nextMode(int8_t mode = MODE_UNDEF) {
+  if (prev_mode != MODE_UNDEF && mode != MODE_LOGO) {
+    cur_mode = prev_mode;
+    prev_mode = MODE_UNDEF;
+  } else {
+    cur_mode = mode == MODE_UNDEF ? (cur_mode + 1) % (TIMER_COUNT + 1) : mode;
+  }
   resetTimer();
   need_update = true;
   skip_update = 0;
@@ -115,6 +137,7 @@ static void onPush() {
   } else {
     time_ticker.detach();
   }
+  resetScreensaverTimer();
 }
 
 void drawBitmap(uint8_t x, uint8_t y, const uint16_t* bitmap, uint8_t w, uint8_t h) {
@@ -271,6 +294,7 @@ void setup() {
     } else if (clicks == 5) {
       fast_time = !fast_time;
     }
+    resetScreensaverTimer();
   });
   button.setPressTicks(1000);
   button.attachLongPressStart(resetTimer);
