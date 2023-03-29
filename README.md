@@ -4,6 +4,8 @@
 
 [![Demo video](./docs/video_preview.jpg)](https://youtu.be/CDZh9LY9HXI)
 
+*Note: time countdown is accelerated x100 in the video.*
+
 ## Components used
 - 64x32 P4 LED Panel [aliexpress](https://aliexpress.com/item/1005004050044228.html)
 - ESP32 CH340 Type-C [aliexpress, make sure to pick the right one](https://aliexpress.com/item/1005004616357165.html)
