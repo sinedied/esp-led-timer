@@ -2,7 +2,7 @@
 
 > 64x32 led matrix timer for conferences, based on ESP8266/ESP32.
 
-<!-- TODO: YT unlisted demo video -->
+[![Demo video](./docs/video_preview.jpg)](https://youtu.be/CDZh9LY9HXI)
 
 ## Components used
 - 64x32 P4 LED Panel [aliexpress](https://aliexpress.com/item/1005004050044228.html)
