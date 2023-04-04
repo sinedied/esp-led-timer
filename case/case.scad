@@ -283,7 +283,7 @@ module lock_tabs() {
   lock_tab(false, false);
   // Right tab
   translate([-lock_tab_thickness/2 + panel_hole_width/2 + fudge, 0, total_depth - front_bump])
-  lock_tab(false, false);
+  lock_tab(false, true);
 }
 
 module screws_hole() {
@@ -494,7 +494,7 @@ module split(split_height = false) {
       cutpath="dovetail",
       spin=split_height ? [90, 90, 0] : 90,
       cutsize=split_height ? 8 : 6,
-      gap= split_height ? 1 : 8,
+      gap= split_height ? 1.5 : 8,
       $slop=split_tolerance
     )
     children();
