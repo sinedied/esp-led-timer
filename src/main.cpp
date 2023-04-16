@@ -10,13 +10,14 @@
 #define TIMER_COUNT 2       // Number of different timers enabled (1-3)
 #define STOP_AT     -9*60   // Stop overtime timer X seconds
 #define BRIGHTNESS  127     // Default brightness
-#define SKIP_UPDATE 60      // Update every 60 cycles
 #define IDLE_TIME   5*60    // Idle time before going to screesaver (logo)
 
 #ifdef ESP32
   #define P_BUTTON    RX    // Pin for the hardware button
+  #define SKIP_UPDATE 120   // Update every n cycles
 #elif ESP8266
   #define P_BUTTON    D9    // Pin for the hardware button
+  #define SKIP_UPDATE 60    // Update every n cycles
 #endif
 
 enum app_mode_t {
