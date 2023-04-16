@@ -384,7 +384,8 @@ module button_support(bottom = true) {
       cube([button_connector_width, button_connector_height, button_connector_depth*2], center=true);
 
       // Front tab
-      translate([0, button_holder_height/2 - wall_width/4 + tolerance*2 + fudge, button_holder_depth/2 + button_support_depth/2 + tolerance/2])
+      translate([0, button_holder_height/2 - wall_width 
+       + wall_width/4 + tolerance*2 + fudge, button_holder_depth/2 + button_support_depth/2 + tolerance/2])
       cube([button_holder_width, wall_width/2 + tolerance*2, button_holder_depth - button_support_depth - tolerance], center=true);
     }
   }
