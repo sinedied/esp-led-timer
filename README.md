@@ -49,7 +49,7 @@ Connect push button pins to the ESP8266 or ESP32 like this:
 
 BUTTON | ESP8266 GPIO | ESP32 GPIO
 -------|--------------|------------
-L      | RX - (D9)    | 3
+L      | RX - (D9)    | RX0
 R      | GND          | GND
 
 ## 3D printed case

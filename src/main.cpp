@@ -14,9 +14,8 @@
 #define IDLE_TIME   5*60    // Idle time before going to screesaver (logo)
 
 #ifdef ESP32
-  #define P_BUTTON    3     // Pin for the hardware button
-#endif
-#ifdef ESP8266
+  #define P_BUTTON    RX    // Pin for the hardware button
+#elif ESP8266
   #define P_BUTTON    D9    // Pin for the hardware button
 #endif
 

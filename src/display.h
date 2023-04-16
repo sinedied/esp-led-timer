@@ -26,6 +26,7 @@
 // Pins for LED MATRIX
 #ifdef ESP32
 
+#include <Ticker.h>
 #define P_LAT 22
 #define P_A 19
 #define P_B 23
@@ -33,12 +34,10 @@
 #define P_D 5
 #define P_E 15
 #define P_OE 2
-hw_timer_t * timer = NULL;
+hw_timer_t* timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
-#endif
-
-#ifdef ESP8266
+#elif ESP8266
 
 #include <Ticker.h>
 Ticker display_ticker;
@@ -54,30 +53,21 @@ Ticker display_ticker;
 
 PxMATRIX display(64, 32, P_LAT, P_OE, P_A, P_B, P_C, P_D);
 
-#ifdef ESP8266
+#ifdef ESP32
+void IRAM_ATTR display_updater() {
+  // Increment the counter and set the time of ISR
+  portENTER_CRITICAL_ISR(&timerMux);
+  display.display(PxMATRIX_DEFAULT_SHOWTIME);
+  portEXIT_CRITICAL_ISR(&timerMux);
+}
+#elif ESP8266
 // ISR for display refresh
 void display_updater() {
   display.display(PxMATRIX_DEFAULT_SHOWTIME);
 }
 #endif
 
-#ifdef ESP32
-void IRAM_ATTR display_updater() {
-  // Increment the counter and set the time of ISR
-  portENTER_CRITICAL_ISR(&timerMux);
-  display.display(display_draw_time);
-  portEXIT_CRITICAL_ISR(&timerMux);
-}
-#endif
-
 void display_update_enable(bool enable) {
-#ifdef ESP8266
-  if (enable)
-    display_ticker.attach(0.004, display_updater);
-  else
-    display_ticker.detach();
-#endif
-
 #ifdef ESP32
   if (enable) {
     timer = timerBegin(0, 80, true);
@@ -88,6 +78,11 @@ void display_update_enable(bool enable) {
     timerDetachInterrupt(timer);
     timerAlarmDisable(timer);
   }
+#elif ESP8266
+  if (enable)
+    display_ticker.attach(0.004, display_updater);
+  else
+    display_ticker.detach();
 #endif
 }
 
