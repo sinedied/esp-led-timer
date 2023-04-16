@@ -1,15 +1,13 @@
 ## TODO
-- [ ] fix enclosure
-- [ ] no split case option
 - [ ] assembly photos
 - [ ] tutorial instructable?
-- [ ] auto screen saver after 5min stopped?
 
 ## Maybe
-- [ ] add wifi
+- [ ] add wifi // https://github.com/sinedied/esp8266-remote/blob/master/src/remote.ino
   * ui to connect wifi/set name
   * settings: wifi, name, mode, timer1, timer2, timer3, brightness
   * /api/get to fetch current status
   * /api/set to set current status
 - [ ] minimal server + web UI
 - [ ] easter egg 4x click => game (jump, yeti throw?)
+- [ ] ESP32 hw timers + dual build
