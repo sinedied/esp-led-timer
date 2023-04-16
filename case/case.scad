@@ -426,7 +426,7 @@ module support(left = true) {
       rotate([angle, 0, 0])
       translate([0, total_height/2, -total_depth/2])
       translate([0, 0, total_depth/2])
-      cube([total_width, total_height, total_depth], center=true);
+      cube([total_width, total_height, total_depth - tolerance/2], center=true);
     }
 
     // Connector
