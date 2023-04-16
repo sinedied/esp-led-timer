@@ -22,31 +22,28 @@
 #define PxMATRIX_double_buffer true
 
 #include <PxMatrix.h>
+#include <Ticker.h>
 
 // Pins for LED MATRIX
 #ifdef ESP32
 
-#include <Ticker.h>
 #define P_LAT 22
 #define P_A 19
 #define P_B 23
 #define P_C 18
 #define P_D 5
-#define P_E 15
-#define P_OE 2
+#define P_OE 16
 hw_timer_t* timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
 #elif ESP8266
 
-#include <Ticker.h>
 Ticker display_ticker;
 #define P_LAT 16
 #define P_A 5
 #define P_B 4
 #define P_C 15
 #define P_D 12
-#define P_E 0
 #define P_OE 2
 
 #endif
