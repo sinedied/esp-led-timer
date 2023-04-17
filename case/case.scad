@@ -42,9 +42,6 @@ usb_hole_offset_x = 95;
 // Usb hole centered offset from bottom of the panel
 usb_hole_offset_y = 18;
 
-// Cable diameter
-cable_diameter = 2.8;
-
 /* [Space and support for button] ---------------------- */
 
 // Push button inner diameter
@@ -83,7 +80,7 @@ button_connector_depth = 5;
 /* [Panel fixation] ------------------------------------ */
 
 // Use screws to fix the panel instead of tabs
-use_screws = false;
+use_screws = true;
 
 // Lock tabs thickness
 lock_tab_thickness = 0.8;
@@ -92,10 +89,10 @@ lock_tab_thickness = 0.8;
 lock_tab_size = 20;
 
 // Screw diameter
-screw_diameter = 2.5;
+screw_diameter = 3;
 
 // Screw head diameter
-screw_head_diameter = 6.5;
+screw_head_diameter = 7;
 
 // Screw head depth
 screw_head_depth = 5;
