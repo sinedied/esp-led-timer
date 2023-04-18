@@ -89,7 +89,7 @@ lock_tab_thickness = 0.8;
 lock_tab_size = 20;
 
 // Screw diameter
-screw_diameter = 3;
+screw_diameter = 3.2;
 
 // Screw head diameter
 screw_head_diameter = 7;
@@ -124,7 +124,7 @@ support_connector_height = 5;
 support_connector_width = 12;
 
 // Connector depth
-support_connector_depth = 6;
+support_connector_depth = 10;
 
 /* [Other] --------------------------------------------- */
 
@@ -132,7 +132,7 @@ support_connector_depth = 6;
 tolerance = 0.35;
 
 // Fit tolerance for the split parts (reduce for tighter fit)
-split_tolerance = 0.2;
+split_tolerance = 0.22;
 
 // Split case on Y axis instead of Z axis
 case_split_y = true;
@@ -286,8 +286,8 @@ module lock_tabs() {
 module screws_hole() {
   inner_diameter = screw_diameter + tolerance*2;
   outer_diameter = screw_head_diameter + tolerance*2;
-  width_offset = total_width/2 - wall_width/2 - screw_offset;
-  height_offset = total_height/2 - wall_width/2 - screw_offset;
+  width_offset = total_width/2 - wall_width - tolerance - screw_offset;
+  height_offset = total_height/2 - wall_width - tolerance - screw_offset;
 
   // Top left
   translate([-width_offset, height_offset, 0]) {
@@ -381,9 +381,10 @@ module button_support(bottom = true) {
       cube([button_connector_width, button_connector_height, button_connector_depth*2], center=true);
 
       // Front tab
+      tab_height = wall_width/2 + tolerance*2 + 1;
       translate([0, button_holder_height/2 - wall_width 
-       + wall_width/4 + tolerance + fudge, button_holder_depth/2 + button_support_depth/2 + tolerance/2])
-      cube([button_holder_width, wall_width/2 + tolerance*2, button_holder_depth - button_support_depth - tolerance], center=true);
+       + tab_height/2 + fudge, button_holder_depth/2 + button_support_depth/2 + tolerance/2])
+      cube([button_holder_width, tab_height, button_holder_depth - button_support_depth - tolerance], center=true);
     }
   }
 }
