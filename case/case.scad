@@ -132,7 +132,7 @@ support_connector_depth = 10;
 tolerance = 0.35;
 
 // Fit tolerance for the split parts (reduce for tighter fit)
-split_tolerance = 0.22;
+split_tolerance = 0.25;
 
 // Split case on Y axis instead of Z axis
 case_split_y = true;
