@@ -1,6 +1,9 @@
 ## TODO
-- [ ] assembly photos
-- [ ] tutorial instructable?
+- [ ] fix no split left/right only
+- [ ] ESP32 hw timers + dual build
+- [ ] CI/CD packages
+- [x] assembly photos
+- [ ] tutorial + instructable
 
 ## Maybe
 - [ ] add wifi // https://github.com/sinedied/esp8266-remote/blob/master/src/remote.ino
@@ -10,4 +13,3 @@
   * /api/set to set current status
 - [ ] minimal server + web UI
 - [ ] easter egg 4x click => game (jump, yeti throw?)
-- [ ] ESP32 hw timers + dual build
