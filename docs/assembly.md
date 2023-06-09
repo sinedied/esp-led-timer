@@ -17,7 +17,7 @@ Not counting the tools and 3D printed parts, this project costs about 30 euros i
 - 8x 10cm F-F Dupont Cable 40pin [aliexpress, make sure to pick the right one](https://aliexpress.com/item/1005004073424751.html)
 - 4x 10cm M-F Dupont Cable 40pin [aliexpress, make sure to pick the right one](https://aliexpress.com/item/1005004073424751.html)
 - 1x Push button kit [aliexpress](https://aliexpress.com/item/1005005012663073.html)
-- 4x screws TODO
+- 4x M3 20mm screws
 - Soldering iron
 - Soldering tin
 - Electrical tape
