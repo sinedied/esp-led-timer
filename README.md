@@ -12,8 +12,8 @@
 - 2m USB-C cable [aliexpress, make sure to pick the right one](https://aliexpress.com/item/1005004215823904.html)
 - 20W USB-C Charger [aliexpress](https://aliexpress.com/item/1005001875465341.html)
 - 10cm M-F Dupont Cable 40pin [aliexpress, make sure to pick the right one](https://aliexpress.com/item/1005004073424751.html)
-- 10cm M-M Dupont Cable 40pin [aliexpress, make sure to pick the right one](https://aliexpress.com/item/1005004073424751.html)
-- 20cm M-M Dupont Cable 40pin [aliexpress, make sure to pick the right one](https://aliexpress.com/item/1005004073424751.html)
+- 10cm F-F Dupont Cable 40pin [aliexpress, make sure to pick the right one](https://aliexpress.com/item/1005004073424751.html)
+- 20cm F-F Dupont Cable 40pin [aliexpress, make sure to pick the right one](https://aliexpress.com/item/1005004073424751.html)
 - Push button kit [aliexpress](https://aliexpress.com/item/1005005012663073.html)
 
 **Total:** about 30 euros

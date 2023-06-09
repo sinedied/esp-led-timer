@@ -1,9 +1,9 @@
 ## TODO
-- [ ] fix no split left/right only
+- [ ] case fix no split left/right only
+- [x] tutorial
+  * + instructable
 - [ ] ESP32 hw timers + dual build
 - [ ] CI/CD packages
-- [x] assembly photos
-- [ ] tutorial + instructable
 
 ## Maybe
 - [ ] add wifi // https://github.com/sinedied/esp8266-remote/blob/master/src/remote.ino
