@@ -171,5 +171,7 @@ It's time to assemble the case and the electronics.
 
 5. Place the LED panel in the case, while making sure no cables are pinched. Hold the case and panel together to return it and access the screw holes on the back. Screw the panel to the case using the 4 screws.
 
+6. Insert the removable support feet in the bottom of the case.
+
 You're done! 🎉
 
