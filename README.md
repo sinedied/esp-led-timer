@@ -6,6 +6,10 @@
 
 *Note: time countdown is accelerated x100 in the video.*
 
+## Assembly guide
+
+You can find a detailed step-by-step assembly guide [here](./docs/assembly.md).
+
 ## Components used
 - 64x32 P4 LED Panel [aliexpress](https://aliexpress.com/item/1005004050044228.html)
 - ESP32 CH340 Type-C [aliexpress, make sure to pick the right one](https://aliexpress.com/item/1005004616357165.html)
