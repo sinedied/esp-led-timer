@@ -4,6 +4,7 @@
 #include "bitmaps.h"
 #include "extra.h"
 
+//#define DEBUG_SIM   1       // Simulate display on serial
 #define DEBUG_FAST  0       // Accelerate time x100 for debug
 #define WIDTH       64      // Matrix width
 #define HEIGHT      32      // Matrix height
@@ -18,6 +19,18 @@
 #elif ESP8266
   #define P_BUTTON    D9    // Pin for the hardware button
   #define SKIP_UPDATE 60    // Update every n cycles
+#endif
+
+#ifdef DEBUG_SIM
+  #define debugSim(...)   Serial.printf(__VA_ARGS__)
+  #undef SKIP_UPDATE
+  #ifdef ESP32
+    #define SKIP_UPDATE 1200
+  #elif ESP8266
+    #define SKIP_UPDATE 600
+  #endif
+#else
+  #define debugSim(...)
 #endif
 
 enum app_mode_t {
@@ -67,7 +80,7 @@ uint16_t progress_colors[] = {
 OneButton button = OneButton(P_BUTTON);
 bool timer_started = false;
 bool need_update = true;
-uint8_t skip_update = 0;
+unsigned int skip_update = 0;
 int8_t cur_mode = MODE_INFO;
 int8_t prev_mode = MODE_UNDEF;
 int cur_time = 0; // in seconds
@@ -120,7 +133,7 @@ static void nextMode(int8_t mode = MODE_UNDEF) {
   resetTimer();
   need_update = true;
   skip_update = 0;
-  Serial.printf("Set mode: %d\n", cur_mode);
+  debugSim("Set mode: %d\n", cur_mode);
 }
 
 static void onPush() {
@@ -222,6 +235,7 @@ void showTimer() {
 
   drawProgressbar();
   display.showBuffer();
+  debugSim("Time: %02d:%02d\n", cur_min, abs(cur_time % 60));
 }
 
 void showLogo() {
@@ -256,10 +270,12 @@ void showLogo() {
     }
 
     display.showBuffer();
+    debugSim("Animated logo\n");
   } else {
     if (need_update) {
       drawBitmap(0, 0, bmp_snowcamp_64x32, 64, 32);
       display.showBuffer();
+      debugSim("Logo\n");
     }
     need_update = false;
   }
@@ -269,6 +285,7 @@ void showInfo() {
   if (need_update) {
     drawBitmap(0, 0, bmp_manual_64x32, 64, 32);
     display.showBuffer();
+    debugSim("Info\n");
   }
   need_update = false;
 }
