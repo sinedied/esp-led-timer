@@ -8,8 +8,6 @@
 
 #define DEBUG_SIM   1       // Simulate display on serial
 #define DEBUG_FAST  0       // Accelerate time x100 for debug
-#define WIDTH       64      // Matrix width
-#define HEIGHT      32      // Matrix height
 #define STOP_AT     -9*60   // Stop overtime timer X seconds
 #define IDLE_TIME   5*60    // Idle time in seconds before going to screesaver (logo)
 #define CONFIG_HOLD 6       // Hold button for X seconds to enter config mode
@@ -42,27 +40,9 @@ enum app_mode_t {
   MODE_TIMER_N,
 };
 
-struct timer_settings {
-  uint8_t duration;   // in minutes
-  uint8_t warn1;      // remaining time in minutes
-  uint8_t warn2;      // remaining time in minutes
-  uint8_t warn3;      // remaining time in minutes
-};
-
 // TODO: use system_get_time for best precision
 Ticker time_ticker;
 Ticker screensaver_ticker;
-
-// Some standard colors
-uint16_t COLOR_RED = display.color565(255, 0, 0);
-uint16_t COLOR_GREEN = display.color565(0, 255, 0);
-uint16_t COLOR_BLUE = display.color565(0, 0, 255);
-uint16_t COLOR_WHITE = display.color565(255, 255, 255);
-uint16_t COLOR_YELLOW = display.color565(255, 255, 0);
-uint16_t COLOR_ORANGE = display.color565(255, 79, 0);
-uint16_t COLOR_CYAN = display.color565(0, 255, 255);
-uint16_t COLOR_MAGENTA = display.color565(223, 0, 191);
-uint16_t COLOR_BLACK = display.color565(0, 0, 0);
 
 uint16_t progress_colors[] = {
   COLOR_GREEN,
@@ -105,9 +85,9 @@ void resetScreensaverTimer() {
 
 void computeProgressBarWarnZones() {
   timer_settings_t timer = config.timers[cur_mode - 1];
-  progress_bar_warn[0] = (timer.duration - timer.warn1) * WIDTH / timer.duration;
-  progress_bar_warn[1] = (timer.duration - timer.warn2) * WIDTH / timer.duration;
-  progress_bar_warn[2] = (timer.duration - timer.warn3) * WIDTH / timer.duration;
+  progress_bar_warn[0] = (timer.duration - timer.warn1) * DISPLAY_WIDTH / timer.duration;
+  progress_bar_warn[1] = (timer.duration - timer.warn2) * DISPLAY_WIDTH / timer.duration;
+  progress_bar_warn[2] = (timer.duration - timer.warn3) * DISPLAY_WIDTH / timer.duration;
 }
 
 static void resetTimer() {
@@ -178,16 +158,16 @@ void drawBitmap(uint8_t x, uint8_t y, const uint16_t* bitmap, uint8_t w, uint8_t
 void drawProgressbar() {
   timer_settings_t timer = config.timers[cur_mode - 1];
 
-  int curr = WIDTH - cur_time * WIDTH / timer.duration / 60;
-  int warn1 = (timer.duration - timer.warn1) * WIDTH / timer.duration;
-  int warn2 = (timer.duration - timer.warn2) * WIDTH / timer.duration;
-  int warn3 = (timer.duration - timer.warn3) * WIDTH / timer.duration;
+  int curr = DISPLAY_WIDTH - cur_time * DISPLAY_WIDTH / timer.duration / 60;
+  int warn1 = (timer.duration - timer.warn1) * DISPLAY_WIDTH / timer.duration;
+  int warn2 = (timer.duration - timer.warn2) * DISPLAY_WIDTH / timer.duration;
+  int warn3 = (timer.duration - timer.warn3) * DISPLAY_WIDTH / timer.duration;
 
   if (cur_time > 0) {
     display.writeFillRect(0, 28, warn1, 4, progress_colors[0]);
     display.writeFillRect(warn1, 28, warn2 - warn1, 4, progress_colors[1]);
     display.writeFillRect(warn2, 28, warn3 - warn2, 4, progress_colors[2]);
-    display.writeFillRect(warn3, 28, WIDTH - warn3, 4, progress_colors[3]);
+    display.writeFillRect(warn3, 28, DISPLAY_WIDTH - warn3, 4, progress_colors[3]);
     display.writeFillRect(0, 28, curr, 4, COLOR_BLACK);
 
     // Draw white triangle
@@ -321,7 +301,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
 
-  initConfig();
+  loadConfig();
   brightness = config.brightness;
 
   // 64x32 = 1/16 scan mode

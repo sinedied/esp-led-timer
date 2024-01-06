@@ -27,51 +27,9 @@ struct config_t {
   timer_settings_t timers[3] = DEFAULT_TIMERS;
 };
 
-config_t config;
+extern config_t config;
 
-void saveConfig() {
-  File configFile = LittleFS.open(CONFIG_FILE, "w");
-  if (!configFile) {
-    Serial.println("Failed to open config file for writing");
-  }
-
-  configFile.write((uint8_t*)&config, sizeof(config));
-  configFile.close();
-  Serial.println("Config saved");
-}
-
-void loadConfig() {
-  if (LittleFS.exists(CONFIG_FILE)) {
-    Serial.println("Reading config file");
-    File configFile = LittleFS.open(CONFIG_FILE, "r");
-
-    if (configFile) {
-      size_t size = configFile.size();
-
-      if (size != sizeof(config)) {
-        Serial.println("Config file size mismatch");
-        return;
-      }
-
-      configFile.read((u_int8_t*)&config, size);
-      Serial.println("Config loaded");
-    }
-    configFile.close();
-  }
-  // If failed to open config file, stick to defaults
-}
-
-void initConfig() {
-  // Clean FS, if needed
-  // LittleFS.format();
-
-  Serial.println("Mounting FS...");
-  if (LittleFS.begin()) {
-    Serial.println("Mounted FS");
-    loadConfig();
-  } else {
-    Serial.println("Failed to mount FS");
-  }
-}
+void saveConfig();
+void loadConfig();
 
 #endif // __CONFIG_H

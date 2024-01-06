@@ -1,14 +1,17 @@
 #ifndef __DISPLAY_H
 #define __DISPLAY_H
 
+#define DISPLAY_WIDTH   64      // Matrix width
+#define DISPLAY_HEIGHT  32      // Matrix height
+
 // This is how many color levels the display shows - the more the slower the update
 #define PxMATRIX_COLOR_DEPTH 3
 
 // Defines the buffer height / the maximum height of the matrix
-#define PxMATRIX_MAX_HEIGHT 32
+#define PxMATRIX_MAX_HEIGHT DISPLAY_HEIGHT
 
 // Defines the buffer width / the maximum width of the matrix
-#define PxMATRIX_MAX_WIDTH 64
+#define PxMATRIX_MAX_WIDTH DISPLAY_WIDTH
 
 // Defines how long we display things by default
 // This defines the 'on' time of the display is us. The larger this number,
@@ -48,7 +51,18 @@ Ticker display_ticker;
 
 #endif
 
-PxMATRIX display(64, 32, P_LAT, P_OE, P_A, P_B, P_C, P_D);
+PxMATRIX display(DISPLAY_WIDTH, DISPLAY_HEIGHT, P_LAT, P_OE, P_A, P_B, P_C, P_D);
+
+// Some standard colors
+uint16_t COLOR_RED = display.color565(255, 0, 0);
+uint16_t COLOR_GREEN = display.color565(0, 255, 0);
+uint16_t COLOR_BLUE = display.color565(0, 0, 255);
+uint16_t COLOR_WHITE = display.color565(255, 255, 255);
+uint16_t COLOR_YELLOW = display.color565(255, 255, 0);
+uint16_t COLOR_ORANGE = display.color565(255, 79, 0);
+uint16_t COLOR_CYAN = display.color565(0, 255, 255);
+uint16_t COLOR_MAGENTA = display.color565(223, 0, 191);
+uint16_t COLOR_BLACK = display.color565(0, 0, 0);
 
 #ifdef ESP32
 void IRAM_ATTR display_updater() {
