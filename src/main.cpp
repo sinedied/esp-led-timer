@@ -3,15 +3,16 @@
 #include "display.h"
 #include "bitmaps.h"
 #include "extra.h"
+#include "config.h"
+#include "wifi.h"
 
-//#define DEBUG_SIM   1       // Simulate display on serial
+#define DEBUG_SIM   1       // Simulate display on serial
 #define DEBUG_FAST  0       // Accelerate time x100 for debug
 #define WIDTH       64      // Matrix width
 #define HEIGHT      32      // Matrix height
-#define TIMER_COUNT 2       // Number of different timers enabled (1-3)
 #define STOP_AT     -9*60   // Stop overtime timer X seconds
-#define BRIGHTNESS  127     // Default brightness
-#define IDLE_TIME   5*60    // Idle time before going to screesaver (logo)
+#define IDLE_TIME   5*60    // Idle time in seconds before going to screesaver (logo)
+#define CONFIG_HOLD 6       // Hold button for X seconds to enter config mode
 
 #ifdef ESP32
   #define P_BUTTON    RX    // Pin for the hardware button
@@ -35,6 +36,7 @@
 
 enum app_mode_t {
   MODE_UNDEF = -100,
+  MODE_CONFIG = -2,
   MODE_INFO = -1,
   MODE_LOGO = 0,
   MODE_TIMER_N,
@@ -47,16 +49,9 @@ struct timer_settings {
   uint8_t warn3;      // remaining time in minutes
 };
 
-// TODO: for ESP32 use hardware timer
+// TODO: use system_get_time for best precision
 Ticker time_ticker;
 Ticker screensaver_ticker;
-
-// TODO: allow update from web interface
-timer_settings timers[] = {
-  { 45, 15, 10, 5 },
-  { 20, 10, 5, 2 },
-  { 10, 5, 2, 1 }
-};
 
 // Some standard colors
 uint16_t COLOR_RED = display.color565(255, 0, 0);
@@ -80,16 +75,23 @@ uint16_t progress_colors[] = {
 OneButton button = OneButton(P_BUTTON);
 bool timer_started = false;
 bool need_update = true;
-unsigned int skip_update = 0;
+uint16_t skip_update = 0;
 int8_t cur_mode = MODE_INFO;
 int8_t prev_mode = MODE_UNDEF;
 int cur_time = 0; // in seconds
 uint8_t progress_bar_warn[3];
-uint8_t brightness = BRIGHTNESS;
+uint8_t brightness;
 bool fast_time = DEBUG_FAST;
 uint8_t cycle = 0;
+time_t press_start;
 
 static void nextMode(int8_t mode);
+
+time_t getTime() {
+  struct timeval current_time;
+  gettimeofday(&current_time, NULL);
+  return current_time.tv_sec;
+}
 
 void resetScreensaverTimer() {
   screensaver_ticker.detach();
@@ -102,7 +104,7 @@ void resetScreensaverTimer() {
 }
 
 void computeProgressBarWarnZones() {
-  timer_settings timer = timers[cur_mode - 1];
+  timer_settings_t timer = config.timers[cur_mode - 1];
   progress_bar_warn[0] = (timer.duration - timer.warn1) * WIDTH / timer.duration;
   progress_bar_warn[1] = (timer.duration - timer.warn2) * WIDTH / timer.duration;
   progress_bar_warn[2] = (timer.duration - timer.warn3) * WIDTH / timer.duration;
@@ -114,21 +116,31 @@ static void resetTimer() {
     case MODE_LOGO:
       break;
     default:
-      cur_time = timers[cur_mode - 1].duration * 60;
+      cur_time = config.timers[cur_mode - 1].duration * 60;
       computeProgressBarWarnZones();
   }
 
   timer_started = false;
   time_ticker.detach();
   resetScreensaverTimer();
+  press_start = getTime();
+}
+
+static void checkForConfigMode() {
+  time_t press_stop = getTime() - press_start;
+  if (press_stop > CONFIG_HOLD * 1000) {
+    nextMode(MODE_INFO);
+  }
 }
 
 static void nextMode(int8_t mode = MODE_UNDEF) {
-  if (prev_mode != MODE_UNDEF && mode != MODE_LOGO) {
+  if (cur_mode == MODE_CONFIG) {
+    ESP.restart();
+  } else if (prev_mode != MODE_UNDEF && mode != MODE_LOGO) {
     cur_mode = prev_mode;
     prev_mode = MODE_UNDEF;
   } else {
-    cur_mode = mode == MODE_UNDEF ? (cur_mode + 1) % (TIMER_COUNT + 1) : mode;
+    cur_mode = mode == MODE_UNDEF ? (cur_mode + 1) % (config.timer_count + 1) : mode;
   }
   resetTimer();
   need_update = true;
@@ -164,7 +176,7 @@ void drawBitmap(uint8_t x, uint8_t y, const uint16_t* bitmap, uint8_t w, uint8_t
 }
 
 void drawProgressbar() {
-  timer_settings timer = timers[cur_mode - 1];
+  timer_settings_t timer = config.timers[cur_mode - 1];
 
   int curr = WIDTH - cur_time * WIDTH / timer.duration / 60;
   int warn1 = (timer.duration - timer.warn1) * WIDTH / timer.duration;
@@ -206,7 +218,7 @@ void showTimer() {
   skip_update = SKIP_UPDATE; 
   display.fillScreen(COLOR_BLACK);
 
-  timer_settings timer = timers[cur_mode - 1];
+  timer_settings_t timer = config.timers[cur_mode - 1];
   int cur_min = cur_time / 60;
   uint16_t cur_color = progress_colors[0];
   
@@ -290,8 +302,27 @@ void showInfo() {
   need_update = false;
 }
 
+void showConfig() {
+  if (need_update) {
+    display.fillScreen(COLOR_BLACK);
+    display.setTextColor(COLOR_WHITE);
+    display.setTextSize(1);
+    display.setCursor(10, 6);
+    display.print("WIFI CONFIG");
+    display.showBuffer();
+    debugSim("Config\n");
+
+    // TODO: activate wifi config
+  }
+  need_update = false;
+}
+
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
+  Serial.println();
+
+  initConfig();
+  brightness = config.brightness;
 
   // 64x32 = 1/16 scan mode
   display.begin(16);
@@ -315,6 +346,7 @@ void setup() {
   });
   button.setPressTicks(1000);
   button.attachLongPressStart(resetTimer);
+  button.attachLongPressStop(checkForConfigMode);
 
   showLogo();
   delay(3000);
@@ -328,6 +360,8 @@ void loop() {
     showInfo();
   } else if (cur_mode == MODE_LOGO) {
     showLogo();
+  } else if (cur_mode == MODE_CONFIG) {
+    showConfig();
   } else {
     showTimer();
   }
