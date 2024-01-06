@@ -65,7 +65,7 @@ uint16_t COLOR_MAGENTA = display.color565(223, 0, 191);
 uint16_t COLOR_BLACK = display.color565(0, 0, 0);
 
 #ifdef ESP32
-void IRAM_ATTR display_updater() {
+void IRAM_ATTR displayUpdater() {
   // Increment the counter and set the time of ISR
   portENTER_CRITICAL_ISR(&timerMux);
   display.display(PxMATRIX_DEFAULT_SHOWTIME);
@@ -73,12 +73,12 @@ void IRAM_ATTR display_updater() {
 }
 #elif ESP8266
 // ISR for display refresh
-void display_updater() {
+void displayUpdater() {
   display.display(PxMATRIX_DEFAULT_SHOWTIME);
 }
 #endif
 
-void display_update_enable(bool enable) {
+void displayUpdateEnable(bool enable) {
 #ifdef ESP32
   if (enable) {
     timer = timerBegin(0, 80, true);
@@ -91,10 +91,19 @@ void display_update_enable(bool enable) {
   }
 #elif ESP8266
   if (enable)
-    display_ticker.attach(0.004, display_updater);
+    display_ticker.attach(0.004, displayUpdater);
   else
     display_ticker.detach();
 #endif
+}
+
+void initDisplay(uint8_t brightness) {
+  // 64x32 = 1/16 scan mode
+  display.begin(16);
+  display.clearDisplay();
+  display.setBrightness(brightness);
+  display.setTextWrap(false);
+  displayUpdateEnable(true);
 }
 
 #endif // __DISPLAY_H

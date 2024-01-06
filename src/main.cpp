@@ -302,14 +302,9 @@ void setup() {
   Serial.println();
 
   loadConfig();
-  brightness = config.brightness;
 
-  // 64x32 = 1/16 scan mode
-  display.begin(16);
-  display.clearDisplay();
-  display.setBrightness(brightness);
-  display.setTextWrap(false);
-  display_update_enable(true);
+  brightness = config.brightness;
+  initDisplay(brightness);
 
   pinMode(P_BUTTON, INPUT);
   button.attachClick(onPush);
