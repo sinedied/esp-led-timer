@@ -6,11 +6,11 @@
 #include "config.h"
 #include "wifi.h"
 
-#define DEBUG_SIM   1       // Simulate display on serial
+// #define DEBUG_SIM   1       // Simulate display on serial
+#define DEBUG_LOGS  1       // Enable debug logs
 #define DEBUG_FAST  0       // Accelerate time x100 for debug
 #define STOP_AT     -9*60   // Stop overtime timer X seconds
-#define IDLE_TIME   5*60    // Idle time in seconds before going to screesaver (logo)
-#define CONFIG_HOLD 6       // Hold button for X seconds to enter config mode
+#define CONFIG_HOLD 5       // Hold button for X seconds to enter config mode
 
 #ifdef ESP32
   #define P_BUTTON    RX    // Pin for the hardware button
@@ -75,8 +75,8 @@ time_t getTime() {
 
 void resetScreensaverTimer() {
   screensaver_ticker.detach();
-  if (cur_mode != MODE_LOGO && !timer_started) {
-    screensaver_ticker.once(IDLE_TIME, []() -> void {
+  if (config.use_screensaver && cur_mode != MODE_LOGO && !timer_started) {
+    screensaver_ticker.once(config.idle_time, []() -> void {
       prev_mode = cur_mode;
       nextMode(MODE_LOGO);
     });
@@ -91,13 +91,9 @@ void computeProgressBarWarnZones() {
 }
 
 static void resetTimer() {
-  switch (cur_mode) {
-    case MODE_INFO:
-    case MODE_LOGO:
-      break;
-    default:
-      cur_time = config.timers[cur_mode - 1].duration * 60;
-      computeProgressBarWarnZones();
+  if (cur_mode == MODE_TIMER_N) {
+    cur_time = config.timers[cur_mode - 1].duration * 60;
+    computeProgressBarWarnZones();
   }
 
   timer_started = false;
@@ -107,16 +103,18 @@ static void resetTimer() {
 }
 
 static void checkForConfigMode() {
-  time_t press_stop = getTime() - press_start;
-  if (press_stop > CONFIG_HOLD * 1000) {
-    nextMode(MODE_INFO);
+  if (cur_mode != MODE_CONFIG) {
+    time_t press_since = getTime() - press_start;
+    if (press_since > CONFIG_HOLD) {
+      nextMode(MODE_CONFIG);
+    }
   }
 }
 
 static void nextMode(int8_t mode = MODE_UNDEF) {
   if (cur_mode == MODE_CONFIG) {
     ESP.restart();
-  } else if (prev_mode != MODE_UNDEF && mode != MODE_LOGO) {
+  } else if (prev_mode != MODE_UNDEF && mode >= MODE_TIMER_N) {
     cur_mode = prev_mode;
     prev_mode = MODE_UNDEF;
   } else {
@@ -125,22 +123,23 @@ static void nextMode(int8_t mode = MODE_UNDEF) {
   resetTimer();
   need_update = true;
   skip_update = 0;
-  debugSim("Set mode: %d\n", cur_mode);
+  Serial.printf("Set mode: %d\n", cur_mode);
 }
 
 static void onPush() {
-  timer_started = !timer_started;
-
-  if (cur_mode == MODE_INFO || cur_mode == MODE_LOGO) {
+  if (cur_mode < MODE_TIMER_N) {
     nextMode(MODE_TIMER_N);
-  } else if (cur_mode != MODE_LOGO && timer_started) {
-    time_ticker.attach(fast_time ? 0.01 : 1.0, []() -> void {
-      if (--cur_time <= STOP_AT) {
-        resetTimer();
-      }
-    });
   } else {
-    time_ticker.detach();
+    if (timer_started) {
+      time_ticker.detach();
+    } else {
+      time_ticker.attach(fast_time ? 0.01 : 1.0, []() -> void {
+        if (--cur_time <= STOP_AT) {
+          resetTimer();
+        }
+      });
+    }
+    timer_started = !timer_started;
   }
   resetScreensaverTimer();
 }
@@ -286,19 +285,21 @@ void showConfig() {
   if (need_update) {
     display.fillScreen(COLOR_BLACK);
     display.setTextColor(COLOR_WHITE);
-    display.setTextSize(1);
-    display.setCursor(10, 6);
-    display.print("WIFI CONFIG");
+    display.setTextSize(0);
+    display.setCursor(0, 12);
+    display.print("WIFI");
+    display.setCursor(29, 12);
+    display.print("CONFIG");
     display.showBuffer();
     debugSim("Config\n");
 
-    // TODO: activate wifi config
+    setupWifi();
   }
   need_update = false;
 }
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println();
 
   loadConfig();
@@ -321,9 +322,11 @@ void setup() {
   });
   button.setPressTicks(1000);
   button.attachLongPressStart(resetTimer);
-  button.attachLongPressStop(checkForConfigMode);
+  button.attachDuringLongPress(checkForConfigMode);
 
   showLogo();
+  initWifi(DEBUG_LOGS);
+
   delay(3000);
   need_update = true;
 }
