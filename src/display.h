@@ -82,7 +82,7 @@ void displayUpdateEnable(bool enable) {
 #ifdef ESP32
   if (enable) {
     timer = timerBegin(0, 80, true);
-    timerAttachInterrupt(timer, &display_updater, true);
+    timerAttachInterrupt(timer, &displayUpdater, true);
     timerAlarmWrite(timer, 4000, true);
     timerAlarmEnable(timer);
   } else {
