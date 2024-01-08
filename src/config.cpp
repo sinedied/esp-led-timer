@@ -45,3 +45,10 @@ void loadConfig() {
   }
   // If failed to open config file, stick to defaults
 }
+
+void resetConfig() {
+  config_t new_config;
+  memcpy(&config, &new_config, sizeof(config));
+  Serial.println("Config reset");
+  saveConfig();
+}

@@ -37,5 +37,6 @@ extern config_t config;
 
 void saveConfig();
 void loadConfig();
+void resetConfig();
 
 #endif // __CONFIG_H
