@@ -43,7 +43,7 @@ void ExtendedWiFiManager::startServer() {
   server->begin();
 
   #ifdef WM_DEBUG_LEVEL
-  DEBUG_WM(WM_DEBUG_VERBOSE,F("Web server started"));
+  DEBUG_WM(F("Web server started"));
   #endif
 }
 
@@ -69,7 +69,7 @@ void ExtendedWiFiManager::stopServer() {
   if (WiFi.status() == WL_IDLE_STATUS){
     WiFi.reconnect();
     #ifdef WM_DEBUG_LEVEL
-    DEBUG_WM(WM_DEBUG_VERBOSE,F("WiFi Reconnect, was idle"));
+    DEBUG_WM(F("WiFi Reconnect, was idle"));
     #endif
   }
 
@@ -90,7 +90,7 @@ void ExtendedWiFiManager::processServer() {
 
 void ExtendedWiFiManager::handleIndex() {
   #ifdef WM_DEBUG_LEVEL
-  DEBUG_WM(WM_DEBUG_VERBOSE,F("<- HTTP Index"));
+  DEBUG_WM(F("<- HTTP Index"));
   #endif
 
   if (captivePortal()) return; // If captive portal redirect instead of displaying the page
@@ -102,7 +102,7 @@ void ExtendedWiFiManager::handleIndex() {
 
 void ExtendedWiFiManager::handleControls() {
   #ifdef WM_DEBUG_LEVEL
-  DEBUG_WM(WM_DEBUG_VERBOSE,F("<- HTTP Controls"));
+  DEBUG_WM(F("<- HTTP Controls"));
   #endif
 
   String page = "controls.html";
@@ -111,7 +111,7 @@ void ExtendedWiFiManager::handleControls() {
 
 void ExtendedWiFiManager::handleSettings() {
   #ifdef WM_DEBUG_LEVEL
-  DEBUG_WM(WM_DEBUG_VERBOSE,F("<- HTTP Settings"));
+  DEBUG_WM(F("<- HTTP Settings"));
   #endif
 
   String page = "settings.html";
@@ -120,8 +120,8 @@ void ExtendedWiFiManager::handleSettings() {
 
 void ExtendedWiFiManager::handleState() {
   #ifdef WM_DEBUG_LEVEL
-  DEBUG_WM(WM_DEBUG_VERBOSE,F("<- HTTP state"));
-  DEBUG_WM(WM_DEBUG_DEV,F("Method:"),server->method() == HTTP_GET  ? (String)FPSTR(S_GET) : (String)FPSTR(S_POST));
+  DEBUG_WM(F("<- HTTP state"));
+  DEBUG_WM(F("Method:"),server->method() == HTTP_GET  ? (String)FPSTR(S_GET) : (String)FPSTR(S_POST));
   #endif
 
   String page = "state";
@@ -200,4 +200,23 @@ void ExtendedWiFiManager::handleState() {
 
   // server->sendHeader(FPSTR(HTTP_HEAD_CORS), FPSTR(HTTP_HEAD_CORS_ALLOW_ALL));
   // HTTPSend(page);
+}
+
+void ExtendedWiFiManager::checkForConnect(std::function<void(boolean)> callback) {
+  if (!check_for_connect) {
+    return;
+  }
+
+  uint8_t status = WiFi.status();
+
+  if (status == WL_CONNECTED) {
+    _lastconxresult = WL_CONNECTED;
+    check_for_connect = false;
+    callback(true);
+    return;
+  } else if (status == WL_CONNECT_FAILED) {
+    check_for_connect = false;
+    callback(false);
+    return;
+  }
 }

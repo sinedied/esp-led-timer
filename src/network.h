@@ -23,19 +23,19 @@
 #include "wm.h"
 #include "config.h"
 
-#define CONNECT_TIMEOUT 15     // in seconds
-#define CONFIG_TIMEOUT  10*60  // in seconds
-
 ExtendedWiFiManager wifiManager;
 
 void startWifiServer() {
   Serial.println("Starting wifi server...");
-  // wifiManager.setConfigPortalBlocking(false);
   wifiManager.startServer();
 }
 
 void processServer() {
   wifiManager.processServer();
+}
+
+void checkForConnect(std::function<void(boolean)> callback) {
+  wifiManager.checkForConnect(callback);
 }
 
 void initAPMode() {
@@ -51,25 +51,32 @@ void initWifi(bool enableDebug) {
     return;
   }
 
-  if (!wifiManager.getWiFiIsSaved()) {
-    Serial.println("No wifi credentials saved");
+  if (!wifiManager.getWiFiIsSaved() || config.use_ap) {
+    Serial.println("No wifi credentials saved or AP mode enabled");
     initAPMode();
   } else {
     wifiManager.setRestorePersistent(true);
-    wifiManager.setConnectTimeout(CONNECT_TIMEOUT);
+    wifiManager.setConnectTimeout(1);
     wifiManager.setEnableConfigPortal(false);
-    wifiManager.setWiFiAutoReconnect(true);
+    wifiManager.check_for_connect = true;
+    wifiManager.autoConnect(config.hostname, config.password);
 
-    if (wifiManager.autoConnect(config.hostname, config.password)) {
-      Serial.println("Connected to wifi");
-      Serial.println(WiFi.localIP());
-    } else {
-      Serial.println("Failed to connect to wifi");
-      initAPMode();
-    }
+    // if (wifiManager.autoConnect(config.hostname, config.password)) {
+    //   Serial.println("Connected to wifi");
+    //   Serial.println(WiFi.localIP());
+    // } else {
+    //   Serial.println("Failed to connect to wifi");
+    //   initAPMode();
+    // }
+
+    Serial.println("Wifi init done");
   }
 
-  startWifiServer();
+  // startWifiServer();
+}
+
+IPAddress getIP() {
+  return WiFi.localIP();
 }
 
 void setupWifi() {
@@ -79,8 +86,7 @@ void setupWifi() {
   // wifiManager.setMenu(menu, 4);
 
   wifiManager.setTitle("Wifi configuration");
-  wifiManager.setConfigPortalTimeout(CONFIG_TIMEOUT);
-  // wifiManager.setConfigPortalBlocking(true);
+  wifiManager.setConfigPortalTimeout(0);
 
   const char* config_use_wifi = config.use_wifi ? "1" : "0";
   WiFiManagerParameter use_wifi("use_wifi", "Enable wifi", config_use_wifi, 1);
@@ -98,9 +104,16 @@ void setupWifi() {
     saveConfig();
   });
 
+  wifiManager.setConfigPortalBlocking(false);
+  // wifiManager.setAPStaticIPConfig(IPAddress(10,0,1,1), IPAddress(10,0,1,1), IPAddress(255,255,255,0));
   wifiManager.startConfigPortal(config.hostname, config.password);
-  delay(1000);
-  ESP.restart();
+  // delay(1000);
+  // ESP.restart();
+  Serial.println("Web portal started");
+}
+
+void processSetup() {
+  wifiManager.process();
 }
 
 void resetWifi() {

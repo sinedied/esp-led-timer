@@ -10,10 +10,13 @@ const char R_state[] PROGMEM = "/state";
 
 class ExtendedWiFiManager : public WiFiManager {
   public:
+    boolean check_for_connect = false;
+
     void startAPMode(char const* apName, char const* apPassword);
     void startServer();
     void stopServer();
     void processServer();
+    void checkForConnect(std::function<void(boolean)> callback);
 
   private:
     boolean _server_running = false;
