@@ -87,6 +87,14 @@ Modes cycles between the logo/screensaver and the differents timers.
 
 When the timer is not running, the logo/screensaver will be automatically activated after 5 minutes without touching any button.
 
+### Special commands
+
+- **Hold button for 5s**: activate WiFi config mode
+- **Hold button for 10s**: reset all settings and reboot
+- **5x press**: toggle x100 time acceleration (for demo/testing purposes)
+
+In WiFi config mode, the device will create an access point with the name "Timer" by default. Connect to it, and you should be presented with a captive portal to configure the WiFi settings.
+
 ## Updating bitmaps
 
 To generate the bitmap arrays for images, I used [image2cpp](https://javl.github.io/image2cpp/).
