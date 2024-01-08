@@ -10,7 +10,8 @@
 #define DEBUG_LOGS  1       // Enable debug logs
 #define DEBUG_FAST  0       // Accelerate time x100 for debug
 #define STOP_AT     -9*60   // Stop overtime timer X seconds
-#define CONFIG_HOLD 5       // Hold button for X seconds to enter config mode
+#define HOLD_CONFIG 5       // Hold button for X seconds to enter config mode
+#define HOLD_RESET  10      // Hold button for X seconds to reset all settings
 
 #ifdef ESP32
   #define P_BUTTON    RX    // Pin for the hardware button
@@ -103,11 +104,19 @@ static void resetTimer() {
 }
 
 static void checkForConfigMode() {
+  time_t press_since = getTime() - press_start;
   if (cur_mode != MODE_CONFIG) {
-    time_t press_since = getTime() - press_start;
-    if (press_since > CONFIG_HOLD) {
+    if (press_since > HOLD_CONFIG) {
       nextMode(MODE_CONFIG);
     }
+  }
+
+  if (press_since > HOLD_RESET) {
+    Serial.println("Resetting all settings");
+    resetConfig();
+    resetWifi();
+    delay(1000);
+    ESP.restart();
   }
 }
 
