@@ -103,4 +103,9 @@ void setupWifi() {
   ESP.restart();
 }
 
+void resetWifi() {
+  Serial.println("Resetting wifi settings");
+  wifiManager.resetSettings();
+}
+
 #endif // __NETWORK_H
