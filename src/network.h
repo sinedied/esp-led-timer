@@ -1,32 +1,46 @@
-#ifndef __WIFI_H
-#define __WIFI_H
+#ifndef __NETWORK_H
+#define __NETWORK_H
+
+#define HSTNM "ssw32-littlefs"
+#define MYFS LITTLEFS
 
 #include <Arduino.h>
+#include <FS.h>
+#include <LittleFS.h>
 
 #ifdef ESP32
-  #include <IPv6Address.h>
-  #include <WiFi.h>
-  #include <WiFiClient.h>
-  #include <WiFiServer.h>
-  #include <WiFiAP.h>
+  // #include <WiFi.h>
+  // #include <IPv6Address.h>
+  // #include <WiFiClient.h>
+  // #include <WiFiServer.h>
+  // #include <WiFiAP.h>
+  // #include <ESPmDNS.h>
+#elif ESP8266
+  // #include <ESP8266WiFi.h>
+  // #include <ESP8266mDNS.h>
 #endif
 
-#include <WiFiManager.h>
+#include "wm.h"
 #include "config.h"
 
-#define CONNECT_TIMEOUT 10     // in seconds
+#define CONNECT_TIMEOUT 15     // in seconds
 #define CONFIG_TIMEOUT  10*60  // in seconds
 
-WiFiManager wifiManager;
+ExtendedWiFiManager wifiManager;
 
 void startWifiServer() {
   Serial.println("Starting wifi server...");
-  // TODO: implement
+  // wifiManager.setConfigPortalBlocking(false);
+  wifiManager.startServer();
+}
+
+void processServer() {
+  wifiManager.processServer();
 }
 
 void initAPMode() {
   Serial.println("Starting AP mode...");
-  // TODO: if no credentials are stored, start in AP mode
+  wifiManager.startAPMode(config.hostname, config.password);
 }
 
 void initWifi(bool enableDebug) {
@@ -44,6 +58,7 @@ void initWifi(bool enableDebug) {
     wifiManager.setRestorePersistent(true);
     wifiManager.setConnectTimeout(CONNECT_TIMEOUT);
     wifiManager.setEnableConfigPortal(false);
+    wifiManager.setWiFiAutoReconnect(true);
 
     if (wifiManager.autoConnect(config.hostname, config.password)) {
       Serial.println("Connected to wifi");
@@ -58,11 +73,14 @@ void initWifi(bool enableDebug) {
 }
 
 void setupWifi() {
+  wifiManager.stopServer();
+
   // const char* menu[] = { "wifi", "setup", "sep", "exit" };
   // wifiManager.setMenu(menu, 4);
 
   wifiManager.setTitle("Wifi configuration");
   wifiManager.setConfigPortalTimeout(CONFIG_TIMEOUT);
+  // wifiManager.setConfigPortalBlocking(true);
 
   const char* config_use_wifi = config.use_wifi ? "1" : "0";
   WiFiManagerParameter use_wifi("use_wifi", "Enable wifi", config_use_wifi, 1);
@@ -85,4 +103,4 @@ void setupWifi() {
   ESP.restart();
 }
 
-#endif // __WIFI_H
+#endif // __NETWORK_H

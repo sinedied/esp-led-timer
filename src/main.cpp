@@ -4,7 +4,7 @@
 #include "bitmaps.h"
 #include "extra.h"
 #include "config.h"
-#include "wifi.h"
+#include "network.h"
 
 // #define DEBUG_SIM   1       // Simulate display on serial
 #define DEBUG_LOGS  1       // Enable debug logs
@@ -320,7 +320,7 @@ void setup() {
     }
     resetScreensaverTimer();
   });
-  button.setPressTicks(1000);
+  button.setPressMs(1000);
   button.attachLongPressStart(resetTimer);
   button.attachDuringLongPress(checkForConfigMode);
 
@@ -343,4 +343,6 @@ void loop() {
   } else {
     showTimer();
   }
+
+  processServer();
 }
