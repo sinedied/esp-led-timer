@@ -153,17 +153,6 @@ static void onPush() {
   resetScreensaverTimer();
 }
 
-static void onConnectResult(boolean result) {
-  if (result) {
-    Serial.println("Connected to wifi");
-    Serial.println(getIP());
-  } else {
-    Serial.println("Failed to connect to wifi");
-    initAPMode();
-  }
-  startWifiServer();
-}
-
 void drawBitmap(uint8_t x, uint8_t y, const uint16_t* bitmap, uint8_t w, uint8_t h) {
  int pixel = 0;
  for (int yy = 0; yy < h; yy++) {
@@ -313,10 +302,9 @@ void showConfig() {
     display.showBuffer();
     debugSim("Config\n");
 
-    setupWifi();
-  } else {
-    processSetup();
+    enableWifi(!config.use_wifi);
   }
+
   need_update = false;
 }
 
@@ -351,9 +339,9 @@ void setup() {
   showLogo();
   delay(3000);
 
-  // On ESP32, display need to be disabled during wifi init
+  // On ESP32, display need to be disabled during wifi activation
   displayUpdateEnable(false);
-  initWifi(DEBUG_LOGS);
+  initWifi();
   displayUpdateEnable(true);
   need_update = true;
 }
@@ -371,9 +359,5 @@ void loop() {
     showTimer();
   }
 
-  // if (count++ % 60 == 0) {
-  //   checkForConnect(onConnectResult);
-  // }
-  // processServer();
-  yield();
+  processServer();
 }
