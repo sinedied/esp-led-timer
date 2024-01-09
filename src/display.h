@@ -91,7 +91,8 @@ void displayUpdateEnable(bool enable) {
   }
 #elif ESP8266
   if (enable)
-    display_ticker.attach(0.004, displayUpdater);
+    // display_ticker.attach(0.004, displayUpdater);
+    display_ticker.attach(0.006, displayUpdater);
   else
     display_ticker.detach();
 #endif
