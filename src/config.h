@@ -8,7 +8,7 @@
 #define CONFIG_FILE               "/config"
 #define DEFAULT_USE_WIFI          false
 #define DEFAULT_USE_SCREENSAVER   false
-#define DEFAULT_USE_AP            false
+#define DEFAULT_USE_AP            true
 #define DEFAULT_SCREENSAVER_TIME  5*60      // in seconds
 #define DEFAULT_HOSTNAME          "Timer"
 #define DEFAULT_PASSWORD          "SnowC4mp"
