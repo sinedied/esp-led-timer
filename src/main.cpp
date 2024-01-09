@@ -92,7 +92,7 @@ void computeProgressBarWarnZones() {
 }
 
 static void resetTimer() {
-  if (cur_mode == MODE_TIMER_N) {
+  if (cur_mode >= MODE_TIMER_N) {
     cur_time = config.timers[cur_mode - 1].duration * 60;
     computeProgressBarWarnZones();
   }
@@ -349,9 +349,12 @@ void setup() {
   button.attachDuringLongPress(checkForConfigMode);
 
   showLogo();
-  initWifi(DEBUG_LOGS);
-
   delay(3000);
+
+  // On ESP32, display need to be disabled during wifi init
+  displayUpdateEnable(false);
+  initWifi(DEBUG_LOGS);
+  displayUpdateEnable(true);
   need_update = true;
 }
 
@@ -368,8 +371,9 @@ void loop() {
     showTimer();
   }
 
-  if (count++ % 60 == 0) {
-    checkForConnect(onConnectResult);
-  }
-  processServer();
+  // if (count++ % 60 == 0) {
+  //   checkForConnect(onConnectResult);
+  // }
+  // processServer();
+  yield();
 }
