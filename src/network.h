@@ -21,9 +21,17 @@
 #include <ESPConnect.h>
 #include "config.h"
 
-AsyncWebServer server(80);
-DNSServer dns;
-boolean server_started = false;
+extern AsyncWebServer server;
+extern DNSServer dns_server;
+extern boolean server_started;
+
+struct control_callbacks_t {
+  void* startTimer();
+  void* stopTimer();
+  void* resetTimer();
+  void* setBrightness(uint8_t brightness);
+  void* setMode(uint8_t mode);
+};
 
 void initWifi();
 void enableWifi(boolean enable);

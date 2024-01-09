@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <OneButton.h>
+#include "types.h"
 #include "display.h"
 #include "bitmaps.h"
 #include "extra.h"
@@ -33,13 +34,6 @@
   #define debugSim(...)
 #endif
 
-enum app_mode_t {
-  MODE_UNDEF = -100,
-  MODE_CONFIG = -2,
-  MODE_INFO = -1,
-  MODE_LOGO = 0,
-  MODE_TIMER_N,
-};
 
 // TODO: use system_get_time for best precision
 Ticker time_ticker;
@@ -54,17 +48,19 @@ uint16_t progress_colors[] = {
 };
 
 OneButton button = OneButton(P_BUTTON);
+bool fast_time = DEBUG_FAST;
 bool timer_started = false;
 bool need_update = true;
+bool has_switched_wifi = false;
 uint16_t skip_update = 0;
 int8_t cur_mode = MODE_INFO;
 int8_t prev_mode = MODE_UNDEF;
 int cur_time = 0; // in seconds
 uint8_t progress_bar_warn[3];
 uint8_t brightness;
-bool fast_time = DEBUG_FAST;
 uint8_t cycle = 0;
 time_t press_start;
+message_t message;
 
 static void nextMode(int8_t mode);
 
@@ -100,15 +96,26 @@ static void resetTimer() {
   timer_started = false;
   time_ticker.detach();
   resetScreensaverTimer();
-  press_start = getTime();
 }
 
-static void checkForConfigMode() {
+static void checkForHoldActions() {
   time_t press_since = getTime() - press_start;
-  if (cur_mode != MODE_CONFIG) {
-    if (press_since > HOLD_CONFIG) {
-      nextMode(MODE_CONFIG);
-    }
+
+  if (!has_switched_wifi && press_since > HOLD_CONFIG) {
+    has_switched_wifi = true;
+
+    // On ESP32, display need to be disabled during wifi activation
+    displayUpdateEnable(false);
+    enableWifi(!config.use_wifi);
+    displayUpdateEnable(true);
+
+    strcpy(message.title, "WIFI");
+    sprintf(message.line1, "AP %s", config.use_wifi ? "on" : "off");
+    strcpy(message.line2, config.use_wifi ? getIP().toString().c_str() : "");
+
+    prev_mode = cur_mode;
+    message.start_time = getTime();
+    nextMode(MODE_MESSAGE);
   }
 
   if (press_since > HOLD_RESET) {
@@ -121,14 +128,13 @@ static void checkForConfigMode() {
 }
 
 static void nextMode(int8_t mode = MODE_UNDEF) {
-  if (cur_mode == MODE_CONFIG) {
-    ESP.restart();
-  } else if (prev_mode != MODE_UNDEF && mode >= MODE_TIMER_N) {
+  if (cur_mode == MODE_MESSAGE || (prev_mode != MODE_UNDEF && mode >= MODE_TIMER_N)) {
     cur_mode = prev_mode;
     prev_mode = MODE_UNDEF;
   } else {
     cur_mode = mode == MODE_UNDEF ? (cur_mode + 1) % (config.timer_count + 1) : mode;
   }
+
   resetTimer();
   need_update = true;
   skip_update = 0;
@@ -290,19 +296,24 @@ void showInfo() {
   need_update = false;
 }
 
-void showConfig() {
-  if (need_update) {
+void showMessage() {
+  time_t since = getTime() - message.start_time;
+
+  if (since > message.duration_sec) {
+    nextMode();
+  } else if (need_update) {
     display.fillScreen(COLOR_BLACK);
     display.setTextColor(COLOR_WHITE);
-    display.setTextSize(0);
-    display.setCursor(0, 12);
-    display.print("WIFI");
-    display.setCursor(29, 12);
-    display.print("CONFIG");
+    display.setTextSize(1);
+    display.setCursor(0, 0);
+    display.print(message.title);
+    display.setTextColor(COLOR_YELLOW);
+    display.setCursor(0, 10);
+    display.print(message.line1);
+    display.setCursor(0, 20);
+    display.print(message.line2);
     display.showBuffer();
-    debugSim("Config\n");
-
-    enableWifi(!config.use_wifi);
+    debugSim("Message: %s\n%s\n%s\n", message.title, message.line1, message.line2);
   }
 
   need_update = false;
@@ -333,16 +344,20 @@ void setup() {
     resetScreensaverTimer();
   });
   button.setPressMs(1000);
-  button.attachLongPressStart(resetTimer);
-  button.attachDuringLongPress(checkForConfigMode);
-
-  showLogo();
-  delay(3000);
+  button.attachLongPressStart([]() {
+    resetTimer();
+    press_start = getTime();
+    has_switched_wifi = false;
+  });
+  button.attachDuringLongPress(checkForHoldActions);
 
   // On ESP32, display need to be disabled during wifi activation
   displayUpdateEnable(false);
   initWifi();
   displayUpdateEnable(true);
+
+  showLogo();
+  delay(3000);
   need_update = true;
 }
 
@@ -353,8 +368,8 @@ void loop() {
     showInfo();
   } else if (cur_mode == MODE_LOGO) {
     showLogo();
-  } else if (cur_mode == MODE_CONFIG) {
-    showConfig();
+  } else if (cur_mode == MODE_MESSAGE) {
+    showMessage();
   } else {
     showTimer();
   }

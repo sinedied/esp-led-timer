@@ -1,12 +1,16 @@
 #include "network.h"
 
+AsyncWebServer server(80);
+DNSServer dns_server;
+boolean server_started = false;
+
 void initWifi() {
   Serial.println("Init wifi");
 
   // Setup WiFi
   WiFi.persistent(false);
   WiFi.setAutoConnect(true);
-  dns.setErrorReplyCode(DNSReplyCode::NoError);
+  dns_server.setErrorReplyCode(DNSReplyCode::NoError);
 
   server.on("/", HTTP_GET, [&](AsyncWebServerRequest *request) {
     request->send(200, "text/plain", "Hello from ESP");
@@ -23,6 +27,12 @@ void initWifi() {
   server.onNotFound([](AsyncWebServerRequest *request) {
     request->send(404);
   });
+
+  if (config.use_wifi) {
+    enableWifi(true);
+  } else {
+    Serial.println("Wifi disabled");
+  }
 }
 
 void enableWifi(boolean enable) {
@@ -34,15 +44,15 @@ void enableWifi(boolean enable) {
     WiFi.mode(WIFI_AP);
     WiFi.softAP(config.hostname, config.password);
     Serial.println("IPAddress: " + WiFi.softAPIP().toString());
-    dns.start(53, "*", WiFi.softAPIP());
+    dns_server.start(53, "*", WiFi.softAPIP());
 
     startWifiServer();
   } else {
     stopWifiServer();
 
     Serial.println("Disconnecting wifi");
-    dns.stop();
-    WiFi.disconnect();
+    dns_server.stop();
+    WiFi.softAPdisconnect(true);
   }
 }
 
@@ -75,5 +85,5 @@ void processServer() {
     return;
   }
 
-  dns.processNextRequest();
+  dns_server.processNextRequest();
 }
