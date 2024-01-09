@@ -14,13 +14,11 @@ void saveConfig() {
 }
 
 void loadConfig() {
-  // Clean FS, if needed
-  // LittleFS.format();
-
   Serial.println("Mounting FS...");
 
   if (!LittleFS.begin()) {
     Serial.println("Failed to mount FS");
+    LittleFS.format();
     return;
   }
 
@@ -42,8 +40,9 @@ void loadConfig() {
       Serial.println("Config loaded");
     }
     configFile.close();
+  } else {
+    Serial.println("No config saved, using defaults");
   }
-  // If failed to open config file, stick to defaults
 }
 
 void resetConfig() {
