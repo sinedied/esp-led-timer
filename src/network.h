@@ -20,20 +20,23 @@
 
 #include <ESPConnect.h>
 #include "config.h"
+#include "types.h"
 
 extern AsyncWebServer server;
 extern DNSServer dns_server;
 extern boolean server_started;
 
 struct control_callbacks_t {
-  void* startTimer();
-  void* stopTimer();
-  void* resetTimer();
-  void* setBrightness(uint8_t brightness);
-  void* setMode(uint8_t mode);
+  std::function<void()> startTimer;
+  std::function<void()> stopTimer;
+  std::function<void()> resetTimer;
+  std::function<void(uint8_t)> setBrightness;
+  std::function<void(uint8_t)> setMode;
+  std::function<void()> resetScreensaverTimer;
+  std::function<app_state_t&()> getState;
 };
 
-void initWifi();
+void initWifi(control_callbacks_t& callbacks);
 void enableWifi(boolean enable);
 void resetWifi();
 IPAddress getIP();

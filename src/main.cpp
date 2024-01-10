@@ -49,18 +49,15 @@ uint16_t progress_colors[] = {
 
 OneButton button = OneButton(P_BUTTON);
 bool fast_time = DEBUG_FAST;
-bool timer_started = false;
 bool need_update = true;
 bool has_switched_wifi = false;
 uint16_t skip_update = 0;
-int8_t cur_mode = MODE_INFO;
 int8_t prev_mode = MODE_UNDEF;
-int cur_time = 0; // in seconds
 uint8_t progress_bar_warn[3];
-uint8_t brightness;
 uint8_t cycle = 0;
 time_t press_start;
 message_t message;
+app_state_t state;
 
 static void nextMode(int8_t mode);
 
@@ -72,30 +69,48 @@ time_t getTime() {
 
 void resetScreensaverTimer() {
   screensaver_ticker.detach();
-  if (config.use_screensaver && cur_mode != MODE_LOGO && !timer_started) {
+  if (config.use_screensaver && state.cur_mode != MODE_LOGO && !state.timer_started) {
     screensaver_ticker.once(config.idle_time, []() -> void {
-      prev_mode = cur_mode;
+      prev_mode = state.cur_mode;
       nextMode(MODE_LOGO);
     });
   }
 }
 
 void computeProgressBarWarnZones() {
-  timer_settings_t timer = config.timers[cur_mode - 1];
+  timer_settings_t timer = config.timers[state.cur_mode - 1];
   progress_bar_warn[0] = (timer.duration - timer.warn1) * DISPLAY_WIDTH / timer.duration;
   progress_bar_warn[1] = (timer.duration - timer.warn2) * DISPLAY_WIDTH / timer.duration;
   progress_bar_warn[2] = (timer.duration - timer.warn3) * DISPLAY_WIDTH / timer.duration;
 }
 
 static void resetTimer() {
-  if (cur_mode >= MODE_TIMER_N) {
-    cur_time = config.timers[cur_mode - 1].duration * 60;
+  if (state.cur_mode >= MODE_TIMER_N) {
+    state.cur_time = config.timers[state.cur_mode - 1].duration * 60;
     computeProgressBarWarnZones();
   }
 
-  timer_started = false;
+  state.timer_started = false;
   time_ticker.detach();
   resetScreensaverTimer();
+}
+
+static void startTimer() {
+  if (state.cur_mode >= MODE_TIMER_N && !state.timer_started) {
+    state.timer_started = true;
+    time_ticker.attach(fast_time ? 0.01 : 1.0, []() -> void {
+      if (--state.cur_time <= STOP_AT) {
+        resetTimer();
+      }
+    });
+  }
+}
+
+static void stopTimer() {
+  if (state.cur_mode >= MODE_TIMER_N && state.timer_started) {
+    state.timer_started = false;
+    time_ticker.detach();
+  }
 }
 
 static void checkForHoldActions() {
@@ -113,7 +128,7 @@ static void checkForHoldActions() {
     sprintf(message.line1, "AP %s", config.use_wifi ? "on" : "off");
     strcpy(message.line2, config.use_wifi ? getIP().toString().c_str() : "");
 
-    prev_mode = cur_mode;
+    prev_mode = state.cur_mode;
     message.start_time = getTime();
     nextMode(MODE_MESSAGE);
   }
@@ -128,34 +143,31 @@ static void checkForHoldActions() {
 }
 
 static void nextMode(int8_t mode = MODE_UNDEF) {
-  if (cur_mode == MODE_MESSAGE || (prev_mode != MODE_UNDEF && mode >= MODE_TIMER_N)) {
-    cur_mode = prev_mode;
+  if (state.cur_mode == MODE_MESSAGE || (prev_mode != MODE_UNDEF && mode >= MODE_TIMER_N)) {
+    state.cur_mode = prev_mode;
     prev_mode = MODE_UNDEF;
   } else {
-    cur_mode = mode == MODE_UNDEF ? (cur_mode + 1) % (config.timer_count + 1) : mode;
+    state.cur_mode = mode == MODE_UNDEF ? (state.cur_mode + 1) % (config.timer_count + 1) : mode;
   }
 
   resetTimer();
   need_update = true;
   skip_update = 0;
-  Serial.printf("Set mode: %d\n", cur_mode);
+  Serial.printf("Set mode: %d\n", state.cur_mode);
 }
 
 static void onPush() {
-  if (cur_mode < MODE_TIMER_N) {
+  if (state.cur_mode < MODE_TIMER_N) {
     nextMode(MODE_TIMER_N);
-  } else {
-    if (timer_started) {
-      time_ticker.detach();
-    } else {
-      time_ticker.attach(fast_time ? 0.01 : 1.0, []() -> void {
-        if (--cur_time <= STOP_AT) {
-          resetTimer();
-        }
-      });
-    }
-    timer_started = !timer_started;
+    return;
   }
+
+  if (state.timer_started) {
+    stopTimer();
+  } else {
+    startTimer();
+  }
+
   resetScreensaverTimer();
 }
 
@@ -170,14 +182,14 @@ void drawBitmap(uint8_t x, uint8_t y, const uint16_t* bitmap, uint8_t w, uint8_t
 }
 
 void drawProgressbar() {
-  timer_settings_t timer = config.timers[cur_mode - 1];
+  timer_settings_t timer = config.timers[state.cur_mode - 1];
 
-  int curr = DISPLAY_WIDTH - cur_time * DISPLAY_WIDTH / timer.duration / 60;
+  int curr = DISPLAY_WIDTH - state.cur_time * DISPLAY_WIDTH / timer.duration / 60;
   int warn1 = (timer.duration - timer.warn1) * DISPLAY_WIDTH / timer.duration;
   int warn2 = (timer.duration - timer.warn2) * DISPLAY_WIDTH / timer.duration;
   int warn3 = (timer.duration - timer.warn3) * DISPLAY_WIDTH / timer.duration;
 
-  if (cur_time > 0) {
+  if (state.cur_time > 0) {
     display.writeFillRect(0, 28, warn1, 4, progress_colors[0]);
     display.writeFillRect(warn1, 28, warn2 - warn1, 4, progress_colors[1]);
     display.writeFillRect(warn2, 28, warn3 - warn2, 4, progress_colors[2]);
@@ -212,11 +224,11 @@ void showTimer() {
   skip_update = SKIP_UPDATE; 
   display.fillScreen(COLOR_BLACK);
 
-  timer_settings_t timer = config.timers[cur_mode - 1];
-  int cur_min = cur_time / 60;
+  timer_settings_t timer = config.timers[state.cur_mode - 1];
+  int cur_min = state.cur_time / 60;
   uint16_t cur_color = progress_colors[0];
   
-  if (cur_time <= 0) {
+  if (state.cur_time <= 0) {
     cur_color = progress_colors[4];
   } else if (cur_min <= timer.warn3) {
     cur_color = progress_colors[3];
@@ -233,19 +245,19 @@ void showTimer() {
   display.setCursor(6, 6);
   display.printf("%02d", abs(cur_min));
   display.setCursor(36, 6);
-  display.printf("%02d", abs(cur_time % 60));
+  display.printf("%02d", abs(state.cur_time % 60));
 
-  if (cur_time < 0) {
+  if (state.cur_time < 0) {
     display.writeFillRect(0, 12, 4, 2, cur_color);
   }
 
   drawProgressbar();
   display.showBuffer();
-  debugSim("Time: %02d:%02d\n", cur_min, abs(cur_time % 60));
+  debugSim("Time: %02d:%02d\n", cur_min, abs(state.cur_time % 60));
 }
 
 void showLogo() {
-  if (cur_mode == MODE_LOGO) {
+  if (state.cur_mode == MODE_LOGO) {
     if (need_update) {
       // Randomize snowflakes
       for (uint8_t i = 0; i < SNOWFLAKE_COUNT; i++) {
@@ -327,8 +339,8 @@ void setup() {
 
   loadConfig();
 
-  brightness = config.brightness;
-  initDisplay(brightness);
+  state.brightness = config.brightness;
+  initDisplay(state.brightness);
 
   pinMode(P_BUTTON, INPUT);
   button.attachClick(onPush);
@@ -336,8 +348,8 @@ void setup() {
   button.attachMultiClick([]() {
     int clicks = button.getNumberClicks();
     if (clicks == 3) {
-      brightness = (brightness + 64) % 256;
-      display.setBrightness(brightness);
+      state.brightness = (state.brightness + 64) % 256;
+      display.setBrightness(state.brightness);
     } else if (clicks == 5) {
       fast_time = !fast_time;
     }
@@ -353,7 +365,18 @@ void setup() {
 
   // On ESP32, display need to be disabled during wifi activation
   displayUpdateEnable(false);
-  initWifi();
+  control_callbacks_t callbacks;
+  callbacks.startTimer = startTimer;
+  callbacks.stopTimer = stopTimer;
+  callbacks.resetTimer = resetTimer;
+  callbacks.setBrightness = [](uint8_t b) {
+    state.brightness = b;
+    display.setBrightness(state.brightness);
+  };
+  callbacks.setMode = nextMode;
+  callbacks.resetScreensaverTimer = resetScreensaverTimer;
+  callbacks.getState = []() -> app_state_t& { return state; };
+  initWifi(callbacks);
   displayUpdateEnable(true);
 
   showLogo();
@@ -364,11 +387,11 @@ void setup() {
 void loop() {
   button.tick();
 
-  if (cur_mode == MODE_INFO) {
+  if (state.cur_mode == MODE_INFO) {
     showInfo();
-  } else if (cur_mode == MODE_LOGO) {
+  } else if (state.cur_mode == MODE_LOGO) {
     showLogo();
-  } else if (cur_mode == MODE_MESSAGE) {
+  } else if (state.cur_mode == MODE_MESSAGE) {
     showMessage();
   } else {
     showTimer();

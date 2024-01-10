@@ -1,10 +1,12 @@
 #include "network.h"
 
+extern app_state_t state;
+
 AsyncWebServer server(80);
 DNSServer dns_server;
 boolean server_started = false;
 
-void initWifi() {
+void initWifi(control_callbacks_t& callbacks) {
   Serial.println("Init wifi");
 
   // Setup WiFi
@@ -17,10 +19,21 @@ void initWifi() {
   });
 
   server.on("/state", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    
+
+
     request->send(200, "text/plain", "Hello from ESP");
   });
 
   server.on("/state", HTTP_POST, [&](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", "Hello from ESP");
+  });
+
+  server.on("/config", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", "Hello from ESP");
+  });
+
+  server.on("/config", HTTP_POST, [&](AsyncWebServerRequest *request) {
     request->send(200, "text/plain", "Hello from ESP");
   });
 

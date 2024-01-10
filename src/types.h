@@ -11,6 +11,13 @@ enum app_mode_t {
   MODE_TIMER_N,
 };
 
+struct app_state_t {
+  int8_t cur_mode = MODE_INFO;
+  int cur_time = 0; // in seconds
+  bool timer_started = false;
+  uint8_t brightness;
+};
+
 struct message_t {
   char title[12] = "";
   char line1[24] = "";
