@@ -13,7 +13,7 @@
       <select id="mode">
         <option value="1">Timer 1</option>
         <option value="2">Timer 2</option>
-        <option value="3" disabled>Timer 2</option>
+        <option value="3" disabled>Timer 3</option>
         <option value="0">Logo</option>
         <option value="-1" disabled>Info</option>
         <option value="-2" disabled>Message</option>
@@ -96,9 +96,9 @@
         document.getElementById(`timer${i}_warn1`).value = config.timers[i].warn1;
         document.getElementById(`timer${i}_warn2`).value = config.timers[i].warn2;
         document.getElementById(`timer${i}_warn3`).value = config.timers[i].warn3;
-        document.getElementById(`timer${i}`).hidden = i >= config.timer_count;
       }
 
+      updateTimersCount();
       document.getElementById('config').disabled = false;
     }
 
@@ -202,6 +202,14 @@
       }
     }
 
+    function updateTimersCount() {
+      const timer_count = document.getElementById('timer_count').value;
+      for (let i = 0; i < 3; i++) {
+        document.getElementById(`timer${i}`).hidden = i >= timer_count;
+        document.getElementById(`mode`).children[i].disabled = i >= timer_count;
+      }
+    }
+
     window.onload = async () => {
       setupTimersConfig();
       await getConfig();
@@ -229,12 +237,7 @@
         document.getElementById('brightness').value = config.brightness;
         await sendState('brightness', config.brightness);
       };
-      document.getElementById('timer_count').onchange = async () => {
-        const timer_count = document.getElementById('timer_count').value;
-        for (let i = 0; i < 3; i++) {
-          document.getElementById(`timer${i}`).hidden = i >= timer_count;
-        }
-      };
+      document.getElementById('timer_count').onchange = updateTimersCount;
       document.getElementById('save_config').onclick = saveConfig;
     };
   </script>
