@@ -37,6 +37,7 @@ void initWifi(control_callbacks_t& controls) {
     int8_t mode;
     if (getInt8(request, "mode", mode)) {
       if (mode != state.cur_mode) {
+        DEBUG_NETWORK_PRINTF("Set mode: %d\n", mode);
         callbacks.setMode(mode);
       }
     }
@@ -44,24 +45,25 @@ void initWifi(control_callbacks_t& controls) {
     uint8_t brightness;
     if (getUint8(request, "brightness", brightness)) {
       if (brightness != state.brightness) {
+        DEBUG_NETWORK_PRINTF("Set brightness: %d\n", brightness);
         callbacks.setBrightness(brightness);
       }
     }
 
     if (request->hasParam("timer_start", true)) {
-      Serial.println("Start timer");
+      DEBUG_NETWORK_PRINTLN("Start timer");
       callbacks.startTimer();
       callbacks.resetScreensaverTimer();
     }
 
     if (request->hasParam("timer_stop", true)) {
-      Serial.println("Stop timer");
+      DEBUG_NETWORK_PRINTLN("Stop timer");
       callbacks.stopTimer();
       callbacks.resetScreensaverTimer();
     }
 
     if (request->hasParam("timer_reset", true)) {
-      Serial.println("Reset timer");
+      DEBUG_NETWORK_PRINTLN("Reset timer");
       callbacks.resetTimer();
       callbacks.resetScreensaverTimer();
     }
@@ -205,7 +207,7 @@ bool getBool(AsyncWebServerRequest* request, const char* field, bool& value) {
   }
 
   String str = request->getParam(field, true)->value();
-  Serial.printf("%s: %s\n", field, str.c_str());
+  DEBUG_NETWORK_PRINTF("%s: %s\n", field, str.c_str());
   value = str == "true";
   return true;
 }
@@ -216,7 +218,7 @@ bool getInt8(AsyncWebServerRequest* request, const char* field, int8_t& value) {
   }
 
   String str = request->getParam(field, true)->value();
-  Serial.printf("%s: %s\n", field, str.c_str());
+  DEBUG_NETWORK_PRINTF("%s: %s\n", field, str.c_str());
   int32_t new_value;
 
   if (!sscanf(str.c_str(), "%d", &new_value)) {
@@ -234,7 +236,7 @@ bool getUint8(AsyncWebServerRequest* request, const char* field, uint8_t& value)
   }
 
   String str = request->getParam(field, true)->value();
-  Serial.printf("%s: %s\n", field, str.c_str());
+  DEBUG_NETWORK_PRINTF("%s: %s\n", field, str.c_str());
   uint32_t new_value;
 
   if (!sscanf(str.c_str(), "%u", &new_value)) {
@@ -252,7 +254,7 @@ bool getUint32(AsyncWebServerRequest* request, const char* field, uint32_t& valu
   }
 
   String str = request->getParam(field, true)->value();
-  Serial.printf("%s: %s\n", field, str.c_str());
+  DEBUG_NETWORK_PRINTF("%s: %s\n", field, str.c_str());
   uint32_t new_value;
 
   if (!sscanf(str.c_str(), "%u", &new_value)) {
@@ -270,7 +272,7 @@ bool getString(AsyncWebServerRequest* request, const char* field, char* value, s
   }
 
   String str = request->getParam(field, true)->value();
-  Serial.printf("%s: %s\n", field, str.c_str());
+  DEBUG_NETWORK_PRINTF("%s: %s\n", field, str.c_str());
 
   if (str.length() >= max_len) {
     request->send(400, "text/plain", "Invalid value for " + String(field));

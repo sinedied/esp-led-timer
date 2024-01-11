@@ -22,6 +22,16 @@
 #include "html.h"
 #include "types.h"
 
+// #define DEBUG_NETWORK  1
+
+#if DEBUG_NETWORK
+  #define DEBUG_NETWORK_PRINTF(...)   Serial.printf(__VA_ARGS__)
+  #define DEBUG_NETWORK_PRINTLN(x)    Serial.println(x)
+#else
+  #define DEBUG_NETWORK_PRINTF(...)
+  #define DEBUG_NETWORK_PRINTLN(x)
+#endif
+
 extern AsyncWebServer server;
 extern DNSServer dns_server;
 extern bool server_started;
