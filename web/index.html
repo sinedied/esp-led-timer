@@ -114,17 +114,13 @@
       config.append('use_screensaver', use_screensaver);
       config.append('use_ap', use_ap);
 
-      const response = await fetch('/config', {
+      // No await, as if successful, we'll never get a response
+      fetch('/config', {
         method: 'POST',
         body: config
       });
-      if (!response.ok) {
-        alert(`Failed to set ${key}`);
-      } else {
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-      }
+
+      setTimeout(() => { window.location.reload(); }, 2000);
     }
 
     function updateTimer(time) {
