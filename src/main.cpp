@@ -57,6 +57,7 @@ uint8_t cycle = 0;
 time_t press_start;
 message_t message;
 app_state_t state;
+int8_t async_next_mode = state.cur_mode;
 
 static void nextMode(int8_t mode);
 
@@ -155,6 +156,7 @@ static void nextMode(int8_t mode = MODE_UNDEF) {
   }
 
   resetTimer();
+  async_next_mode = state.cur_mode;
   need_update = true;
   skip_update = 0;
   Serial.printf("Set mode: %d\n", state.cur_mode);
@@ -185,9 +187,7 @@ void drawBitmap(uint8_t x, uint8_t y, const uint16_t* bitmap, uint8_t w, uint8_t
  }
 }
 
-void drawProgressbar() {
-  timer_settings_t timer = config.timers[state.cur_mode - 1];
-
+void drawProgressbar(timer_settings_t& timer ) {
   int curr = DISPLAY_WIDTH - state.cur_time * DISPLAY_WIDTH / timer.duration / 60;
   int warn1 = (timer.duration - timer.warn1) * DISPLAY_WIDTH / timer.duration;
   int warn2 = (timer.duration - timer.warn2) * DISPLAY_WIDTH / timer.duration;
@@ -255,7 +255,7 @@ void showTimer() {
     display.writeFillRect(0, 12, 4, 2, cur_color);
   }
 
-  drawProgressbar();
+  drawProgressbar(timer);
   display.showBuffer();
   DEBUG_SIM_PRINTF("Time: %02d:%02d\n", cur_min, abs(state.cur_time % 60));
 }
@@ -335,8 +335,6 @@ void showMessage() {
   need_update = false;
 }
 
-uint8_t count = 0;
-
 void setup() {
   Serial.begin(9600);
   Serial.println();
@@ -375,7 +373,12 @@ void setup() {
     state.brightness = b;
     display.setBrightness(state.brightness);
   };
-  callbacks.setMode = nextMode;
+  // callbacks.setMode = nextMode;
+  callbacks.setMode = [&](int8_t mode) {
+    // Calling directly nextMode() async context will crash
+    // the ESP when setting logo mode, not sure why
+    async_next_mode = mode;
+  };
   callbacks.resetScreensaverTimer = resetScreensaverTimer;
   // On ESP32, display need to be disabled during wifi activation
   displayUpdateEnable(false);
@@ -389,6 +392,11 @@ void setup() {
 
 void loop() {
   button.tick();
+
+  if (async_next_mode != state.cur_mode) {
+    Serial.println("Async mode change");
+    nextMode(async_next_mode);
+  }
 
   if (state.cur_mode == MODE_INFO) {
     showInfo();
