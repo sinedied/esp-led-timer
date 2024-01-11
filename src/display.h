@@ -26,6 +26,7 @@
 
 #include <PxMatrix.h>
 #include <Ticker.h>
+#include "config.h"
 
 // Pins for LED MATRIX
 #ifdef ESP32
@@ -91,8 +92,9 @@ void displayUpdateEnable(bool enable) {
   }
 #elif ESP8266
   if (enable)
-    // display_ticker.attach(0.004, displayUpdater);
-    display_ticker.attach(0.006, displayUpdater);
+    // When using wifi, we need to update the display less often
+    // otherwise the DHCP server can't respond to requests fast enough
+    display_ticker.attach(config.use_wifi ? 0.008 : 0.004, displayUpdater);
   else
     display_ticker.detach();
 #endif
