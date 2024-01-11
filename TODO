@@ -1,5 +1,5 @@
 ## TODO
-- [ ] use system_get_time for precise timers
+- [ ] use millis() for precise timers
 - [ ] web controls css
 - [ ] case fix no split left/right only
 - [ ] publish on instructable or hackaday

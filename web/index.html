@@ -18,6 +18,7 @@
         <option value="-1" disabled>Info</option>
         <option value="-2" disabled>Message</option>
       </select>
+      <button id="next_mode">Next</button>
     </p>
     <h1 id="timer">00:00:00</h1>
     <p>
@@ -217,6 +218,9 @@
       document.getElementById('mode').onchange = async () => {
         const mode = document.getElementById('mode').value;
         await sendState('mode', mode);
+      };
+      document.getElementById('next_mode').onclick = async () => {
+        await sendState('mode', -100);  // -100 is MODE_UNDEF
       };
       document.getElementById('brightness').onchange = async () => {
         const brightness = document.getElementById('brightness').value;
