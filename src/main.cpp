@@ -67,7 +67,7 @@ time_t getTime() {
   return current_time.tv_sec;
 }
 
-void resetScreensaverTimer() {
+static void resetScreensaverTimer() {
   screensaver_ticker.detach();
   if (config.use_screensaver && state.cur_mode != MODE_LOGO && !state.timer_started) {
     screensaver_ticker.once(config.idle_time, []() -> void {
@@ -369,7 +369,7 @@ void setup() {
   callbacks.startTimer = startTimer;
   callbacks.stopTimer = stopTimer;
   callbacks.resetTimer = resetTimer;
-  callbacks.setBrightness = [](uint8_t b) {
+  callbacks.setBrightness = [&](uint8_t b) {
     state.brightness = b;
     display.setBrightness(state.brightness);
   };
