@@ -22,7 +22,7 @@ bool getUint8(AsyncWebServerRequest* request, const char* field, uint8_t& value)
     return false;
   }
 
-  String str = request->getParam(field, true)->value().c_str();
+  String str = request->getParam(field, true)->value();
   Serial.printf("%s: %s\n", field, str.c_str());
   uint32_t new_value;
 
@@ -31,7 +31,7 @@ bool getUint8(AsyncWebServerRequest* request, const char* field, uint8_t& value)
     return false;
   }
 
-  value = (uint8_t)new_value;
+  value = uint8_t(new_value);
   return true;
 }
 
@@ -40,7 +40,7 @@ bool getUint32(AsyncWebServerRequest* request, const char* field, uint32_t& valu
     return false;
   }
 
-  String str = request->getParam(field, true)->value().c_str();
+  String str = request->getParam(field, true)->value();
   Serial.printf("%s: %s\n", field, str.c_str());
   uint32_t new_value;
 
@@ -58,7 +58,7 @@ bool getString(AsyncWebServerRequest* request, const char* field, char* value, s
     return false;
   }
 
-  String str = request->getParam(field, true)->value().c_str();
+  String str = request->getParam(field, true)->value();
   Serial.printf("%s: %s\n", field, str.c_str());
 
   if (str.length() >= max_len) {
@@ -79,8 +79,9 @@ void initWifi(control_callbacks_t& callbacks) {
   dns_server.setErrorReplyCode(DNSReplyCode::NoError);
 
   server.on("/", HTTP_GET, [&](AsyncWebServerRequest *request) {
-    // TODO: build app html
-    request->send(200, "text/plain", "Hello from ESP");
+    AsyncWebServerResponse* response = request->beginResponse_P(200, "text/html", INDEX_HTML, INDEX_HTML_SIZE);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
   });
 
   server.on("/state", HTTP_GET, [&](AsyncWebServerRequest *request) {
