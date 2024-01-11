@@ -31,6 +31,47 @@
       <button id="default_brightness">Default</button>
     </p>
   </fieldset>
+  <br>
+  <details>
+    <summary>Config</summary>
+    <fieldset id="config" disabled>
+      <form id="config_form" onsubmit="return false">
+        <p>
+          <label for="use_wifi">Enable WiFi:</label>
+          <input type="checkbox" id="use_wifi" name="use_wifi">
+        </p>
+        <p>
+          <label for="hostname">Hostname:</label>
+          <input type="text" id="hostname" name="hostname" maxlength="31">
+        </p>
+        <p>
+          <label for="password">Password:</label>
+          <input type="text" id="password" name="password" maxlength="31">
+        </p>
+        <hr>
+        <p>
+          <label for="use_screensaver">Enable screensaver:</label>
+          <input type="checkbox" id="use_screensaver" name="use_screensaver">
+        </p>
+        <p>
+          <label for="screensaver_time">Screensaver delay (min):</label>
+          <input type="number" id="screensaver_time" name="screensaver_time">
+        </p>
+        <hr>
+        <p>
+          <label for="cfg_brightness">Default brightness:</label>
+          <input type="number" id="cfg_brightness" name="brightness" min="4" max="255">
+        </p>
+        <p>
+          <label for="timer_count">Timer count:</label>
+          <input type="number" id="timer_count" name="timer_count" min="1" max="3">
+        </p>
+        <div id="timers"></div>
+        <input type="checkbox" id="use_ap" name="use_ap" hidden>
+        <button id="save_config">Save config & reboot</button>
+      </form>
+    </fieldset>
+  </details>
 
   <script>
     let config;
@@ -41,6 +82,47 @@
     async function getConfig() {
       const response = await fetch('/config');
       config = await response.json();
+      document.getElementById('use_wifi').checked = Boolean(config.use_wifi);
+      document.getElementById('use_screensaver').checked = config.use_screensaver;
+      document.getElementById('hostname').value = config.hostname;
+      document.getElementById('password').value = config.password;
+      document.getElementById('screensaver_time').value = config.screensaver_time;
+      document.getElementById('cfg_brightness').value = config.brightness;
+      document.getElementById('timer_count').value = config.timer_count;
+      document.getElementById('use_ap').checked = config.use_ap;
+
+      for (let i = 0; i < 3; i++) {
+        document.getElementById(`timer${i}_duration`).value = config.timers[i].duration;
+        document.getElementById(`timer${i}_warn1`).value = config.timers[i].warn1;
+        document.getElementById(`timer${i}_warn2`).value = config.timers[i].warn2;
+        document.getElementById(`timer${i}_warn3`).value = config.timers[i].warn3;
+        document.getElementById(`timer${i}`).hidden = i >= config.timer_count;
+      }
+
+      document.getElementById('config').disabled = false;
+    }
+
+    async function saveConfig() {
+      const config = new FormData(document.getElementById('config_form'));
+      const use_wifi = document.getElementById('use_wifi').checked ? true : false;
+      const use_screensaver = document.getElementById('use_screensaver').checked ? true : false;
+      const use_ap = document.getElementById('use_ap').checked ? true : false;
+      config.delete('use_ap');
+      config.delete('use_wifi');
+      config.delete('use_screensaver');
+      config.append('use_wifi', use_wifi);
+      config.append('use_screensaver', use_screensaver);
+      config.append('use_ap', use_ap);
+
+      const response = await fetch('/config', {
+        method: 'POST',
+        body: config
+      });
+      if (!response.ok) {
+        alert(`Failed to set ${key}`);
+      } else {
+        window.location.reload();
+      }
     }
 
     function updateTimer(time) {
@@ -90,7 +172,38 @@
       await getState();
     }
 
+    function setupTimersConfig() {
+      const timersDiv = document.getElementById('timers');
+
+      for (let i = 0; i < 3; i++) {
+        const timerContainer = document.createElement('p');
+        timerContainer.id = `timer${i}`;
+
+        ['duration', 'warn1', 'warn2', 'warn3'].forEach((field, index) => {
+
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.id = `timer${i}_${field}`;
+          input.name = `timer${i}_${field}`;
+          input.min = '0';
+
+          const label = document.createElement('label');
+          label.htmlFor = input.id;
+          label.textContent = `Timer ${i + 1} ${field} (min): `;
+
+          const p = document.createElement('p');
+          p.appendChild(label);
+          p.appendChild(input);
+          timerContainer.appendChild(p);
+        });
+
+        timersDiv.appendChild(document.createElement('hr'));
+        timersDiv.appendChild(timerContainer);
+      }
+    }
+
     window.onload = async () => {
+      setupTimersConfig();
       await getConfig();
       await getState();
       document.getElementById('state').disabled = false;
@@ -116,6 +229,13 @@
         document.getElementById('brightness').value = config.brightness;
         await sendState('brightness', config.brightness);
       };
+      document.getElementById('timer_count').onchange = async () => {
+        const timer_count = document.getElementById('timer_count').value;
+        for (let i = 0; i < 3; i++) {
+          document.getElementById(`timer${i}`).hidden = i >= timer_count;
+        }
+      };
+      document.getElementById('save_config').onclick = saveConfig;
     };
   </script>
 </body>
