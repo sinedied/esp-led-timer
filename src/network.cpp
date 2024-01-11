@@ -78,6 +78,8 @@ void initWifi(control_callbacks_t& controls) {
   // Setup WiFi
   WiFi.persistent(false);
   WiFi.setAutoConnect(true);
+
+  dns_server.setTTL(3600);
   dns_server.setErrorReplyCode(DNSReplyCode::NoError);
 
   server.on("/", HTTP_GET, [&](AsyncWebServerRequest *request) {
@@ -187,8 +189,14 @@ void initWifi(control_callbacks_t& controls) {
     ESP.restart();
   });
 
-  server.onNotFound([](AsyncWebServerRequest *request) {
+  server.on("/favicon.ico", [&](AsyncWebServerRequest* request) {
     request->send(404);
+  });
+
+  server.onNotFound([&](AsyncWebServerRequest* request) {
+    AsyncWebServerResponse* response = request->beginResponse_P(200, "text/html", INDEX_HTML, INDEX_HTML_SIZE);
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
   });
 
   if (config.use_wifi) {
