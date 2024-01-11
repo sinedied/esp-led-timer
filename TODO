@@ -1,9 +1,8 @@
 ## TODO
-- [ ] case fix no split left/right only
-- [x] tutorial
-  * + instructable
-- [x] dual build + make esp32 default
 - [ ] use system_get_time for precise timers
+- [ ] web controls css
+- [ ] case fix no split left/right only
+- [ ] publish on instructable or hackaday
 
 ## Maybe
 - Wifi station connection/config
