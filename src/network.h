@@ -41,7 +41,7 @@ struct control_callbacks_t {
   std::function<void()> stopTimer;
   std::function<void()> resetTimer;
   std::function<void(uint8_t)> setBrightness;
-  std::function<void(uint8_t)> setMode;
+  std::function<void(int8_t)> setMode;
   std::function<void()> resetScreensaverTimer;
 };
 
