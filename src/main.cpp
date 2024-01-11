@@ -143,6 +143,11 @@ static void checkForHoldActions() {
 }
 
 static void nextMode(int8_t mode = MODE_UNDEF) {
+  if (mode != MODE_UNDEF && (mode < MODE_MESSAGE || mode > MAX_TIMERS)) {
+    Serial.printf("Invalid mode: %d\n", mode);
+    return;
+  }
+
   if (state.cur_mode == MODE_MESSAGE || (prev_mode != MODE_UNDEF && mode >= MODE_TIMER_N)) {
     state.cur_mode = prev_mode;
     prev_mode = MODE_UNDEF;
@@ -363,8 +368,6 @@ void setup() {
   });
   button.attachDuringLongPress(checkForHoldActions);
 
-  // On ESP32, display need to be disabled during wifi activation
-  displayUpdateEnable(false);
   control_callbacks_t callbacks;
   callbacks.startTimer = startTimer;
   callbacks.stopTimer = stopTimer;
@@ -375,6 +378,8 @@ void setup() {
   };
   callbacks.setMode = nextMode;
   callbacks.resetScreensaverTimer = resetScreensaverTimer;
+  // On ESP32, display need to be disabled during wifi activation
+  displayUpdateEnable(false);
   initWifi(callbacks);
   displayUpdateEnable(true);
 

@@ -7,70 +7,6 @@ DNSServer dns_server;
 bool server_started = false;
 control_callbacks_t callbacks;
 
-bool getBool(AsyncWebServerRequest* request, const char* field, bool& value) {
-  if (!request->hasParam(field, true)) {
-    return false;
-  }
-
-  String str = request->getParam(field, true)->value();
-  Serial.printf("%s: %s\n", field, str.c_str());
-  value = str == "true";
-  return true;
-}
-
-bool getUint8(AsyncWebServerRequest* request, const char* field, uint8_t& value) {
-  if (!request->hasParam(field, true)) {
-    return false;
-  }
-
-  String str = request->getParam(field, true)->value();
-  Serial.printf("%s: %s\n", field, str.c_str());
-  uint32_t new_value;
-
-  if (!sscanf(str.c_str(), "%u", &new_value)) {
-    request->send(400, "text/plain", "Invalid value for " + String(field));
-    return false;
-  }
-
-  value = uint8_t(new_value);
-  return true;
-}
-
-bool getUint32(AsyncWebServerRequest* request, const char* field, uint32_t& value) {
-  if (!request->hasParam(field, true)) {
-    return false;
-  }
-
-  String str = request->getParam(field, true)->value();
-  Serial.printf("%s: %s\n", field, str.c_str());
-  uint32_t new_value;
-
-  if (!sscanf(str.c_str(), "%u", &new_value)) {
-    request->send(400, "text/plain", "Invalid value for " + String(field));
-    return false;
-  }
-
-  value = new_value;
-  return true;
-}
-
-bool getString(AsyncWebServerRequest* request, const char* field, char* value, size_t max_len) {
-  if (!request->hasParam(field, true)) {
-    return false;
-  }
-
-  String str = request->getParam(field, true)->value();
-  Serial.printf("%s: %s\n", field, str.c_str());
-
-  if (str.length() >= max_len) {
-    request->send(400, "text/plain", "Invalid value for " + String(field));
-    return false;
-  }
-
-  str.toCharArray(value, max_len);
-  return true;
-}
-
 void initWifi(control_callbacks_t& controls) {
   Serial.println("Init wifi");
   callbacks = controls;
@@ -98,8 +34,8 @@ void initWifi(control_callbacks_t& controls) {
 
   server.on("/state", HTTP_POST, [&](AsyncWebServerRequest *request) {
     // Data comes from the client as application/x-www-form-urlencoded (FormData)
-    uint8_t mode;
-    if (getUint8(request, "mode", mode)) {
+    int8_t mode;
+    if (getInt8(request, "mode", mode)) {
       if (mode != state.cur_mode) {
         callbacks.setMode(mode);
       }
@@ -260,4 +196,87 @@ void processServer() {
   }
 
   dns_server.processNextRequest();
+}
+
+
+bool getBool(AsyncWebServerRequest* request, const char* field, bool& value) {
+  if (!request->hasParam(field, true)) {
+    return false;
+  }
+
+  String str = request->getParam(field, true)->value();
+  Serial.printf("%s: %s\n", field, str.c_str());
+  value = str == "true";
+  return true;
+}
+
+bool getInt8(AsyncWebServerRequest* request, const char* field, int8_t& value) {
+  if (!request->hasParam(field, true)) {
+    return false;
+  }
+
+  String str = request->getParam(field, true)->value();
+  Serial.printf("%s: %s\n", field, str.c_str());
+  int32_t new_value;
+
+  if (!sscanf(str.c_str(), "%d", &new_value)) {
+    request->send(400, "text/plain", "Invalid value for " + String(field));
+    return false;
+  }
+
+  value = int8_t(new_value);
+  return true;
+}
+
+bool getUint8(AsyncWebServerRequest* request, const char* field, uint8_t& value) {
+  if (!request->hasParam(field, true)) {
+    return false;
+  }
+
+  String str = request->getParam(field, true)->value();
+  Serial.printf("%s: %s\n", field, str.c_str());
+  uint32_t new_value;
+
+  if (!sscanf(str.c_str(), "%u", &new_value)) {
+    request->send(400, "text/plain", "Invalid value for " + String(field));
+    return false;
+  }
+
+  value = uint8_t(new_value);
+  return true;
+}
+
+bool getUint32(AsyncWebServerRequest* request, const char* field, uint32_t& value) {
+  if (!request->hasParam(field, true)) {
+    return false;
+  }
+
+  String str = request->getParam(field, true)->value();
+  Serial.printf("%s: %s\n", field, str.c_str());
+  uint32_t new_value;
+
+  if (!sscanf(str.c_str(), "%u", &new_value)) {
+    request->send(400, "text/plain", "Invalid value for " + String(field));
+    return false;
+  }
+
+  value = new_value;
+  return true;
+}
+
+bool getString(AsyncWebServerRequest* request, const char* field, char* value, size_t max_len) {
+  if (!request->hasParam(field, true)) {
+    return false;
+  }
+
+  String str = request->getParam(field, true)->value();
+  Serial.printf("%s: %s\n", field, str.c_str());
+
+  if (str.length() >= max_len) {
+    request->send(400, "text/plain", "Invalid value for " + String(field));
+    return false;
+  }
+
+  str.toCharArray(value, max_len);
+  return true;
 }

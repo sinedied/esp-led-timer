@@ -44,4 +44,11 @@ void startWifiServer();
 void stopWifiServer();
 void processServer();
 
+// Helper functions for parsing form data
+bool getBool(AsyncWebServerRequest* request, const char* field, bool& value);
+bool getInt8(AsyncWebServerRequest* request, const char* field, int8_t& value);
+bool getUint8(AsyncWebServerRequest* request, const char* field, uint8_t& value);
+bool getUint32(AsyncWebServerRequest* request, const char* field, uint32_t& value);
+bool getString(AsyncWebServerRequest* request, const char* field, char* value, size_t max_len);
+
 #endif // __NETWORK_H
