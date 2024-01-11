@@ -201,8 +201,11 @@ void initWifi(control_callbacks_t& controls) {
 
 void enableWifi(bool enable) {
   Serial.printf("Enable wifi: %d\n", enable);
-  config.use_wifi = enable;
-  saveConfig();
+
+  if (enable != config.use_wifi) {
+    config.use_wifi = enable;
+    saveConfig();
+  }
 
   if (enable) {
     WiFi.mode(WIFI_AP);
