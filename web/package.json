@@ -1,0 +1,12 @@
+{
+  "name": "web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node create-header.js"
+  },
+  "devDependencies": {
+    "vite": "^5.0.8"
+  }
+}

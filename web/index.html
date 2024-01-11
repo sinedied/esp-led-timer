@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timer</title>
+</head>
+<body>
+  <fieldset>
+    <legend>Timer Control</legend>
+    <p>
+      <label for="mode">Mode:</label>
+      <select id="mode">
+        <option value="1">Timer 1</option>
+        <option value="2">Timer 2</option>
+        <option value="3" disabled>Timer 2</option>
+        <option value="0">Logo</option>
+        <option value="-1" disabled>Info</option>
+        <option value="-2" disabled>Message</option>
+      </select>
+    </p>
+    <h1 id="timer">00:00:00</h1>
+    <p>
+      <button id="start_timer">Start</button>
+      <button id="stop_timer">Stop</button>
+      <button id="reset_timer">Reset</button>
+    </p>
+    <p>
+      <label for="brightness">Brightness:</label>
+      <input type="range" id="brightness" min="0" max="255">
+      <button id="default_brightness">Default</button>
+    </p>
+  </fieldset>
+
+<script>
+let config;
+let state;
+
+async function getConfig() {
+  const response = await fetch('/config');
+  config = await response.json();
+}
+
+function updateTimer(time) {
+  const hours = String(Math.floor(time / 3600)).padStart(2, '0');
+  const minutes = String(Math.floor((time - hours * 3600) / 60)).padStart(2, '0');
+  const seconds = String(time - hours * 3600 - minutes * 60).padStart(2, '0');
+  document.getElementById('timer').innerText = `${hours}:${minutes}:${seconds}`;
+}
+
+async function getState() {
+  const response = await fetch('/state');
+  state = await response.json();
+  updateTimer(state.time);
+  document.getElementById('mode').value = state.mode;
+  document.getElementById('brightness').value = state.brightness;
+}
+
+async function setMode() {
+  const mode = document.getElementById('mode').value;
+  const form = new FormData;
+  form.append('mode', mode);
+  const response = await fetch('/state', {
+    method: 'POST',
+    body: form
+  });
+  if (!response.ok) {
+    alert('Failed to set mode');
+  }
+}
+
+window.onload = async () => {
+  await getConfig();
+  await getState();
+
+  document.getElementById('mode').onchange = setMode;
+};
+</script>
+</body>
+</html>
