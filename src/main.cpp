@@ -8,7 +8,6 @@
 #include "network.h"
 
 // #define DEBUG_SIM   1       // Simulate display on serial
-#define DEBUG_LOGS  1       // Enable debug logs
 #define DEBUG_FAST  0       // Accelerate time x100 for debug
 #define STOP_AT     -9*60   // Stop overtime timer X seconds
 #define HOLD_CONFIG 5       // Hold button for X seconds to enter config mode
@@ -23,7 +22,7 @@
 #endif
 
 #ifdef DEBUG_SIM
-  #define debugSim(...)   Serial.printf(__VA_ARGS__)
+  #define DEBUG_SIM_PRINTF(...)   Serial.printf(__VA_ARGS__)
   #undef SKIP_UPDATE
   #ifdef ESP32
     #define SKIP_UPDATE 1200
@@ -31,7 +30,7 @@
     #define SKIP_UPDATE 600
   #endif
 #else
-  #define debugSim(...)
+  #define DEBUG_SIM_PRINTF(...)
 #endif
 
 
@@ -258,7 +257,7 @@ void showTimer() {
 
   drawProgressbar();
   display.showBuffer();
-  debugSim("Time: %02d:%02d\n", cur_min, abs(state.cur_time % 60));
+  DEBUG_SIM_PRINTF("Time: %02d:%02d\n", cur_min, abs(state.cur_time % 60));
 }
 
 void showLogo() {
@@ -293,12 +292,12 @@ void showLogo() {
     }
 
     display.showBuffer();
-    debugSim("Animated logo\n");
+    DEBUG_SIM_PRINTF("Animated logo\n");
   } else {
     if (need_update) {
       drawBitmap(0, 0, bmp_snowcamp_64x32, 64, 32);
       display.showBuffer();
-      debugSim("Logo\n");
+      DEBUG_SIM_PRINTF("Logo\n");
     }
     need_update = false;
   }
@@ -308,7 +307,7 @@ void showInfo() {
   if (need_update) {
     drawBitmap(0, 0, bmp_manual_64x32, 64, 32);
     display.showBuffer();
-    debugSim("Info\n");
+    DEBUG_SIM_PRINTF("Info\n");
   }
   need_update = false;
 }
@@ -330,7 +329,7 @@ void showMessage() {
     display.setCursor(0, 20);
     display.print(message.line2);
     display.showBuffer();
-    debugSim("Message: %s\n%s\n%s\n", message.title, message.line1, message.line2);
+    DEBUG_SIM_PRINTF("Message: %s\n%s\n%s\n", message.title, message.line1, message.line2);
   }
 
   need_update = false;
