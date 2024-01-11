@@ -5,6 +5,7 @@ extern app_state_t state;
 AsyncWebServer server(80);
 DNSServer dns_server;
 bool server_started = false;
+control_callbacks_t callbacks;
 
 bool getBool(AsyncWebServerRequest* request, const char* field, bool& value) {
   if (!request->hasParam(field, true)) {
@@ -70,8 +71,9 @@ bool getString(AsyncWebServerRequest* request, const char* field, char* value, s
   return true;
 }
 
-void initWifi(control_callbacks_t& callbacks) {
+void initWifi(control_callbacks_t& controls) {
   Serial.println("Init wifi");
+  callbacks = controls;
 
   // Setup WiFi
   WiFi.persistent(false);
@@ -248,4 +250,5 @@ void processServer() {
   }
 
   dns_server.processNextRequest();
+  yield();
 }

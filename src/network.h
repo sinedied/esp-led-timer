@@ -10,14 +10,13 @@
 
 #if defined(ESP8266)
   #include <ESP8266WiFi.h>
-  #include <DNSServer.h>
   #include <ESPAsyncTCP.h>
 #elif defined(ESP32)
   #include <WiFi.h>
-  #include <DNSServer.h>
   #include <AsyncTCP.h>
 #endif
 
+#include <DNSServer.h>
 #include <ESPAsyncWebServer.h>
 #include "config.h"
 #include "html.h"
