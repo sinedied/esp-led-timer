@@ -37,7 +37,7 @@ void initWifi(control_callbacks_t& controls) {
     int8_t mode;
     if (getInt8(request, "mode", mode)) {
       if (mode != state.cur_mode) {
-        DEBUG_NETWORK_PRINTF("Set mode: %d\n", mode);
+        DEBUG_NETWORK_PRINTF("/state set mode: %d\n", mode);
         callbacks.setMode(mode);
       }
     }
@@ -45,25 +45,25 @@ void initWifi(control_callbacks_t& controls) {
     uint8_t brightness;
     if (getUint8(request, "brightness", brightness)) {
       if (brightness != state.brightness) {
-        DEBUG_NETWORK_PRINTF("Set brightness: %d\n", brightness);
+        DEBUG_NETWORK_PRINTF("/state set brightness: %u\n", brightness);
         callbacks.setBrightness(brightness);
       }
     }
 
     if (request->hasParam("timer_start", true)) {
-      DEBUG_NETWORK_PRINTLN("Start timer");
+      DEBUG_NETWORK_PRINTLN("/state start timer");
       callbacks.startTimer();
       callbacks.resetScreensaverTimer();
     }
 
     if (request->hasParam("timer_stop", true)) {
-      DEBUG_NETWORK_PRINTLN("Stop timer");
+      DEBUG_NETWORK_PRINTLN("/state stop timer");
       callbacks.stopTimer();
       callbacks.resetScreensaverTimer();
     }
 
     if (request->hasParam("timer_reset", true)) {
-      DEBUG_NETWORK_PRINTLN("Reset timer");
+      DEBUG_NETWORK_PRINTLN("/state reset timer");
       callbacks.resetTimer();
       callbacks.resetScreensaverTimer();
     }
