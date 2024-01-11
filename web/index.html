@@ -121,7 +121,9 @@
       if (!response.ok) {
         alert(`Failed to set ${key}`);
       } else {
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       }
     }
 
