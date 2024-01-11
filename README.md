@@ -89,11 +89,11 @@ When the timer is not running, the logo/screensaver will be automatically activa
 
 ### Special commands
 
-- **Hold button for 5s**: activate WiFi config mode
+- **Hold button for 5s**: enable/disable WiFi AP
 - **Hold button for 10s**: reset all settings and reboot
 - **5x press**: toggle x100 time acceleration (for demo/testing purposes)
 
-In WiFi config mode, the device will create an access point with the name "Timer" by default. Connect to it, and you should be presented with a captive portal to configure the WiFi settings.
+When WiFi is enabled, the device will create an access point with the name "Timer" by default. Connect to it, and you should be presented with a captive portal to control and configure the device.
 
 ## Updating bitmaps
 
