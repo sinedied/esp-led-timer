@@ -168,7 +168,8 @@
       if (!response.ok) {
         alert(`Failed to set ${key}`);
       }
-      await getState();
+      // Delay to allow the ESP to update its state
+      setTimeout(async () => { await getState(); }, 50);
     }
 
     function setupTimersConfig() {
