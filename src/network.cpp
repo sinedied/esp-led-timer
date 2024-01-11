@@ -184,15 +184,6 @@ void initWifi(control_callbacks_t& controls) {
     saveConfig();
     request->send(204);
 
-    // Wait some time before restarting or the response won't be sent
-    // delay doesn't work here, so we use a busy loop
-    // struct timeval start;
-    // struct timeval now;
-    // gettimeofday(&start, NULL);
-    // do {
-    //   gettimeofday(&now, NULL);
-    // } while (now.tv_sec - start.tv_sec > 3);
-
     ESP.restart();
   });
 
@@ -261,5 +252,4 @@ void processServer() {
   }
 
   dns_server.processNextRequest();
-  yield();
 }
