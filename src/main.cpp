@@ -70,7 +70,7 @@ time_t getTime() {
 static void resetScreensaverTimer() {
   screensaver_ticker.detach();
   if (config.use_screensaver && state.cur_mode != MODE_LOGO && !state.timer_started) {
-    screensaver_ticker.once(config.idle_time, []() -> void {
+    screensaver_ticker.once(config.screensaver_time, []() -> void {
       prev_mode = state.cur_mode;
       nextMode(MODE_LOGO);
     });

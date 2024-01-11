@@ -137,7 +137,7 @@ void initWifi(control_callbacks_t& controls) {
     json += ",\"use_ap\":" + String(config.use_ap);
     json += ",\"hostname\":\"" + String(config.hostname) + "\"";
     json += ",\"password\":\"" + String(config.password) + "\"";
-    json += ",\"idle_time\":" + String(config.idle_time);
+    json += ",\"screensaver_time\":" + String(config.screensaver_time);
     json += ",\"brightness\":" + String(config.brightness);
     json += ",\"timer_count\":" + String(config.timer_count);
     json += ",\"timers\":[";
@@ -164,7 +164,7 @@ void initWifi(control_callbacks_t& controls) {
       && getBool(request, "use_ap", config.use_ap)
       && getString(request, "hostname", config.hostname, sizeof(config.hostname))
       && getString(request, "password", config.password, sizeof(config.password))
-      && getUint32(request, "idle_time", config.idle_time)
+      && getUint32(request, "screensaver_time", config.screensaver_time)
       && getUint8(request, "brightness", config.brightness)
       && getUint8(request, "timer_count", config.timer_count);
 

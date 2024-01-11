@@ -30,7 +30,7 @@ struct config_t {
   bool use_ap = DEFAULT_USE_AP;
   char hostname[32] = DEFAULT_HOSTNAME;
   char password[32] = DEFAULT_PASSWORD;
-  uint32_t idle_time = DEFAULT_SCREENSAVER_TIME;
+  uint32_t screensaver_time = DEFAULT_SCREENSAVER_TIME;
   uint8_t brightness = DEFAULT_BRIGHTNESS;
   uint8_t timer_count = DEFAULT_TIMER_COUNT;
   timer_settings_t timers[MAX_TIMERS] = DEFAULT_TIMERS;
