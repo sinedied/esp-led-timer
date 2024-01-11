@@ -6,6 +6,7 @@
 #include <Arduino.h>
 
 #define CONFIG_FILE               "/config"
+#define MAX_TIMERS                3
 #define DEFAULT_USE_WIFI          false
 #define DEFAULT_USE_SCREENSAVER   false
 #define DEFAULT_USE_AP            true
@@ -29,10 +30,10 @@ struct config_t {
   bool use_ap = DEFAULT_USE_AP;
   char hostname[32] = DEFAULT_HOSTNAME;
   char password[32] = DEFAULT_PASSWORD;
-  float idle_time = DEFAULT_SCREENSAVER_TIME;
+  uint32_t idle_time = DEFAULT_SCREENSAVER_TIME;
   uint8_t brightness = DEFAULT_BRIGHTNESS;
   uint8_t timer_count = DEFAULT_TIMER_COUNT;
-  timer_settings_t timers[3] = DEFAULT_TIMERS;
+  timer_settings_t timers[MAX_TIMERS] = DEFAULT_TIMERS;
 };
 
 extern config_t config;

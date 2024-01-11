@@ -24,7 +24,7 @@
 
 extern AsyncWebServer server;
 extern DNSServer dns_server;
-extern boolean server_started;
+extern bool server_started;
 
 struct control_callbacks_t {
   std::function<void()> startTimer;
@@ -33,11 +33,10 @@ struct control_callbacks_t {
   std::function<void(uint8_t)> setBrightness;
   std::function<void(uint8_t)> setMode;
   std::function<void()> resetScreensaverTimer;
-  std::function<app_state_t&()> getState;
 };
 
 void initWifi(control_callbacks_t& callbacks);
-void enableWifi(boolean enable);
+void enableWifi(bool enable);
 void resetWifi();
 IPAddress getIP();
 

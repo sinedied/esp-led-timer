@@ -375,7 +375,6 @@ void setup() {
   };
   callbacks.setMode = nextMode;
   callbacks.resetScreensaverTimer = resetScreensaverTimer;
-  callbacks.getState = []() -> app_state_t& { return state; };
   initWifi(callbacks);
   displayUpdateEnable(true);
 
