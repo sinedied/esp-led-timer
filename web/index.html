@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Timer</title>
+  <title>Timer Control</title>
 </head>
 <body>
-  <fieldset>
+  <fieldset id="state" disabled>
     <legend>Timer Control</legend>
     <p>
       <label for="mode">Mode:</label>
@@ -21,60 +21,102 @@
     </p>
     <h1 id="timer">00:00:00</h1>
     <p>
-      <button id="start_timer">Start</button>
-      <button id="stop_timer">Stop</button>
-      <button id="reset_timer">Reset</button>
+      <button id="timer_start">Start</button>
+      <button id="timer_stop">Stop</button>
+      <button id="timer_reset">Reset</button>
     </p>
     <p>
       <label for="brightness">Brightness:</label>
-      <input type="range" id="brightness" min="0" max="255">
+      <input type="range" id="brightness" min="4" max="255">
       <button id="default_brightness">Default</button>
     </p>
   </fieldset>
 
-<script>
-let config;
-let state;
+  <script>
+    let config;
+    let state;
+    let update_timer = undefined;
+    let update_timer_sim = undefined
 
-async function getConfig() {
-  const response = await fetch('/config');
-  config = await response.json();
-}
+    async function getConfig() {
+      const response = await fetch('/config');
+      config = await response.json();
+    }
 
-function updateTimer(time) {
-  const hours = String(Math.floor(time / 3600)).padStart(2, '0');
-  const minutes = String(Math.floor((time - hours * 3600) / 60)).padStart(2, '0');
-  const seconds = String(time - hours * 3600 - minutes * 60).padStart(2, '0');
-  document.getElementById('timer').innerText = `${hours}:${minutes}:${seconds}`;
-}
+    function updateTimer(time) {
+      const hours = String(Math.floor(time / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((time - hours * 3600) / 60)).padStart(2, '0');
+      const seconds = String(time - hours * 3600 - minutes * 60).padStart(2, '0');
+      document.getElementById('timer').innerText = `${hours}:${minutes}:${seconds}`;
+    }
 
-async function getState() {
-  const response = await fetch('/state');
-  state = await response.json();
-  updateTimer(state.time);
-  document.getElementById('mode').value = state.mode;
-  document.getElementById('brightness').value = state.brightness;
-}
+    async function getState() {
+      const response = await fetch('/state');
+      state = await response.json();
+      updateTimer(state.time);
+      document.getElementById('mode').value = state.mode;
+      document.getElementById('brightness').value = state.brightness;
 
-async function setMode() {
-  const mode = document.getElementById('mode').value;
-  const form = new FormData;
-  form.append('mode', mode);
-  const response = await fetch('/state', {
-    method: 'POST',
-    body: form
-  });
-  if (!response.ok) {
-    alert('Failed to set mode');
-  }
-}
+      if (state.timer_started && !update_timer) {
+        // Simulate timer
+        update_timer_sim = setInterval(() => {
+          state.time -= 1;
+          updateTimer(state.time);
+        }, 1000);
+        // Sync with real timer every 10 seconds
+        update_timer = setInterval(async () => {
+          await getState();
+          updateTimer(state.time);
+        }, 10000);
+      } else if (!state.timer_started) {
+        clearInterval(update_timer_sim);
+        clearInterval(update_timer);
+        update_timer = undefined;
+      }
+      document.getElementById('timer_start').disabled = state.timer_started;
+      document.getElementById('timer_stop').disabled = !state.timer_started;
+    }
 
-window.onload = async () => {
-  await getConfig();
-  await getState();
+    async function sendState(key, value) {
+      const form = new FormData();
+      form.append(key, value);
+      const response = await fetch('/state', {
+        method: 'POST',
+        body: form
+      });
+      if (!response.ok) {
+        alert(`Failed to set ${key}`);
+      }
+      await getState();
+    }
 
-  document.getElementById('mode').onchange = setMode;
-};
-</script>
+    window.onload = async () => {
+      await getConfig();
+      await getState();
+      document.getElementById('state').disabled = false;
+
+      document.getElementById('mode').onchange = async () => {
+        const mode = document.getElementById('mode').value;
+        await sendState('mode', mode);
+      };
+      document.getElementById('brightness').onchange = async () => {
+        const brightness = document.getElementById('brightness').value;
+        await sendState('brightness', brightness);
+      };
+      document.getElementById('timer_start').onclick = async () => {
+        await sendState('timer_start', true);
+      };
+      document.getElementById('timer_stop').onclick = async () => {
+        await sendState('timer_stop', true);
+      };
+      document.getElementById('timer_reset').onclick = async () => {
+        await sendState('timer_reset', true);
+      };
+      document.getElementById('default_brightness').onclick = async () => {
+        document.getElementById('brightness').value = config.brightness;
+        await sendState('brightness', config.brightness);
+      };
+    };
+  </script>
 </body>
 </html>
