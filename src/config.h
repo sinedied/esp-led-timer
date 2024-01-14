@@ -12,7 +12,7 @@
 #define DEFAULT_USE_AP            true
 #define DEFAULT_SCREENSAVER_TIME  5      // in minutes
 #define DEFAULT_HOSTNAME          "Timer"
-#define DEFAULT_PASSWORD          "SnowC4mp"
+#define DEFAULT_PASSWORD          ""
 #define DEFAULT_BRIGHTNESS        127
 #define DEFAULT_TIMER_COUNT       2
 #define DEFAULT_TIMERS            { { 45, 15, 10, 5 }, { 20, 10, 5, 2 }, { 10, 5, 2, 1 } }
