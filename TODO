@@ -1,9 +1,9 @@
 ## TODO
 - [ ] use millis() for precise timers
-- [ ] web controls css
 - [ ] case fix no split left/right only
 - [ ] publish on instructable or hackaday
 
 ## Maybe
-- Wifi station connection/config
+- add mDNS responder
+- Wifi station connection/config?
   * see https://github.com/ayushsharma82/ESPConnect
