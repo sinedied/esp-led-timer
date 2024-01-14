@@ -58,6 +58,8 @@ time_t press_start;
 message_t message;
 app_state_t state;
 int8_t async_next_mode = state.cur_mode;
+uint32_t timer_duration = 0;
+unsigned long timer_start_time = 0;
 
 static void nextMode(int8_t mode);
 
@@ -98,8 +100,17 @@ static void resetTimer() {
 static void startTimer() {
   if (state.cur_mode >= MODE_TIMER_N && !state.timer_started) {
     state.timer_started = true;
-    time_ticker.attach(fast_time ? 0.01 : 1.0, []() -> void {
-      if (--state.cur_time <= STOP_AT) {
+    timer_duration = config.timers[state.cur_mode - 1].duration * 60;
+    timer_start_time = millis();
+
+    time_ticker.attach(fast_time ? 0.01 : 0.25, [&]() -> void {
+      if (fast_time) {
+        --state.cur_time;
+      } else {
+        state.cur_time = timer_duration - (millis() - timer_start_time) / 1000;
+      }
+
+      if (state.cur_time <= STOP_AT) {
         resetTimer();
       }
     });

@@ -1,5 +1,5 @@
 ## TODO
-- [ ] use millis() for precise timers
+- [ ] wifi stress test (2 req/s) * multiple connections
 - [ ] case fix no split left/right only
 - [ ] publish on instructable or hackaday
 
