@@ -103,7 +103,7 @@ static void startTimer() {
     timer_duration = config.timers[state.cur_mode - 1].duration * 60;
     timer_start_time = millis();
 
-    time_ticker.attach(fast_time ? 0.01 : 0.25, [&]() -> void {
+    time_ticker.attach(fast_time ? 0.01 : 0.25, []() -> void {
       if (fast_time) {
         --state.cur_time;
       } else {
