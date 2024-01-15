@@ -190,7 +190,7 @@
     function updateTimer(time) {
       const hours = String(Math.floor(time / 3600)).padStart(2, '0');
       const minutes = String(Math.floor((time - hours * 3600) / 60)).padStart(2, '0');
-      const seconds = String(time - hours * 3600 - minutes * 60).padStart(2, '0');
+      const seconds = String(Math.floor(time - hours * 3600 - minutes * 60)).padStart(2, '0');
       document.getElementById('timer').innerText = `${hours}:${minutes}:${seconds}`;
     }
 
@@ -217,7 +217,10 @@
         clearInterval(update_timer);
         update_timer = undefined;
       }
-      document.getElementById('timer_start').disabled = state.timer_started;
+
+      ['timer_start', 'timer_reset', 'mode', 'next_mode'].forEach((button) => {
+        document.getElementById(button).disabled = state.timer_started;
+      });
       document.getElementById('timer_stop').disabled = !state.timer_started;
     }
 
