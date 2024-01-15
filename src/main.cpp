@@ -54,22 +54,15 @@ uint16_t skip_update = 0;
 int8_t prev_mode = MODE_UNDEF;
 uint8_t progress_bar_warn[3];
 uint8_t cycle = 0;
-time_t press_start;
+unsigned long press_start;
 message_t message;
 app_state_t state;
-int8_t async_next_mode = state.cur_mode;
 uint32_t timer_duration = 0;
 unsigned long timer_start_time = 0;
 int8_t async_next_mode = state.cur_mode;
 bool async_save_reboot = false;
 
 static void nextMode(int8_t mode);
-
-time_t getTime() {
-  struct timeval current_time;
-  gettimeofday(&current_time, NULL);
-  return current_time.tv_sec;
-}
 
 static void resetScreensaverTimer() {
   screensaver_ticker.detach();
@@ -127,7 +120,7 @@ static void stopTimer() {
 }
 
 static void checkForHoldActions() {
-  time_t press_since = getTime() - press_start;
+  uint32_t press_since = (millis() - press_start) / 1000;
 
   if (!has_switched_wifi && press_since > HOLD_CONFIG) {
     has_switched_wifi = true;
@@ -142,7 +135,7 @@ static void checkForHoldActions() {
     strcpy(message.line2, config.use_wifi ? getIP().toString().c_str() : "");
 
     prev_mode = state.cur_mode;
-    message.start_time = getTime();
+    message.start_time = millis();
     nextMode(MODE_MESSAGE);
   }
 
@@ -326,10 +319,12 @@ void showInfo() {
 }
 
 void showMessage() {
-  time_t since = getTime() - message.start_time;
+  uint32_t since = (millis() - message.start_time) / 1000;
 
   if (since > message.duration_sec) {
+    Serial.println("Message timeout");
     nextMode();
+    return;
   } else if (need_update) {
     display.fillScreen(COLOR_BLACK);
     display.setTextColor(COLOR_WHITE);
@@ -373,7 +368,7 @@ void setup() {
   button.setPressMs(1000);
   button.attachLongPressStart([]() {
     resetTimer();
-    press_start = getTime();
+    press_start = millis();
     has_switched_wifi = false;
   });
   button.attachDuringLongPress(checkForHoldActions);
