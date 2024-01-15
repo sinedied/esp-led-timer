@@ -46,6 +46,7 @@ void loadConfig() {
 }
 
 void resetConfig() {
+  LittleFS.format();
   config_t new_config;
   memcpy(&config, &new_config, sizeof(config));
   Serial.println("Config reset");
