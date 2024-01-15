@@ -60,6 +60,8 @@ app_state_t state;
 int8_t async_next_mode = state.cur_mode;
 uint32_t timer_duration = 0;
 unsigned long timer_start_time = 0;
+int8_t async_next_mode = state.cur_mode;
+bool async_save_reboot = false;
 
 static void nextMode(int8_t mode);
 
@@ -384,13 +386,15 @@ void setup() {
     state.brightness = b;
     display.setBrightness(state.brightness);
   };
-  // callbacks.setMode = nextMode;
   callbacks.setMode = [&](int8_t mode) {
     // Calling directly nextMode() async context will crash
     // the ESP when setting logo mode, not sure why
     async_next_mode = mode;
   };
   callbacks.resetScreensaverTimer = resetScreensaverTimer;
+  callbacks.saveConfigAndReboot = [&]() {
+    async_save_reboot = true;
+  };
   // On ESP32, display need to be disabled during wifi activation
   displayUpdateEnable(false);
   initWifi(callbacks);
@@ -403,6 +407,16 @@ void setup() {
 
 void loop() {
   button.tick();
+
+  if (async_save_reboot) {
+    Serial.println("Async save config and reboot");
+    // On ESP32, display need to be disabled during save config
+    displayUpdateEnable(false);
+    saveConfig();
+    displayUpdateEnable(true);
+    delay(1000);
+    ESP.restart();
+  }
 
   if (async_next_mode != state.cur_mode) {
     Serial.println("Async mode change");

@@ -121,10 +121,9 @@ void initWifi(control_callbacks_t& controls) {
       return;
     }
 
-    saveConfig();
+    // Request a config save and reboot (will be done in the main loop)
+    callbacks.saveConfigAndReboot();
     request->send(204);
-
-    ESP.restart();
   });
 
   server.on("/favicon.ico", [&](AsyncWebServerRequest* request) {
@@ -199,7 +198,6 @@ void processServer() {
 
   dns_server.processNextRequest();
 }
-
 
 bool getBool(AsyncWebServerRequest* request, const char* field, bool& value) {
   if (!request->hasParam(field, true)) {

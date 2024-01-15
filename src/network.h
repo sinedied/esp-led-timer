@@ -43,6 +43,7 @@ struct control_callbacks_t {
   std::function<void(uint8_t)> setBrightness;
   std::function<void(int8_t)> setMode;
   std::function<void()> resetScreensaverTimer;
+  std::function<void()> saveConfigAndReboot;
 };
 
 void initWifi(control_callbacks_t& callbacks);
