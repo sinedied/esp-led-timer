@@ -59,6 +59,7 @@ message_t message;
 app_state_t state;
 uint32_t timer_duration = 0;
 unsigned long timer_start_time = 0;
+unsigned int elapsed_time = 0; // in seconds
 int8_t async_next_mode = state.cur_mode;
 bool async_save_reboot = false;
 
@@ -84,6 +85,7 @@ void computeProgressBarWarnZones() {
 static void resetTimer() {
   if (state.cur_mode >= MODE_TIMER_N) {
     state.cur_time = config.timers[state.cur_mode - 1].duration * 60;
+    elapsed_time = 0;
     computeProgressBarWarnZones();
   }
 
@@ -102,7 +104,7 @@ static void startTimer() {
       if (fast_time) {
         --state.cur_time;
       } else {
-        state.cur_time = timer_duration - (millis() - timer_start_time) / 1000;
+        state.cur_time = timer_duration - (millis() - timer_start_time) / 1000 - elapsed_time;
       }
 
       if (state.cur_time <= STOP_AT) {
@@ -116,6 +118,8 @@ static void stopTimer() {
   if (state.cur_mode >= MODE_TIMER_N && state.timer_started) {
     state.timer_started = false;
     time_ticker.detach();
+    // Save already elapsed time
+    elapsed_time += (millis() - timer_start_time) / 1000;
   }
 }
 
