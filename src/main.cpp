@@ -88,6 +88,7 @@ static void resetTimer() {
   }
 
   state.timer_started = false;
+  timer_start_time = 0;
   time_ticker.detach();
   resetScreensaverTimer();
 }
@@ -96,7 +97,12 @@ static void startTimer() {
   if (state.cur_mode >= MODE_TIMER_N && !state.timer_started) {
     state.timer_started = true;
     timer_duration = config.timers[state.cur_mode - 1].duration * 60;
-    timer_start_time = millis();
+
+    if (timer_start_time == 0) {
+      timer_start_time = millis();
+    } else {
+      timer_start_time = millis() - (timer_duration - state.cur_time) * 1000;
+    }
 
     time_ticker.attach(fast_time ? 0.01 : 0.25, []() -> void {
       if (fast_time) {
