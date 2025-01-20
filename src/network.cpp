@@ -180,12 +180,20 @@ IPAddress getIP() {
 }
 
 void startWifiServer() {
+  if (!MDNS.begin("timer")) {
+    Serial.println("Error setting up MDNS responder");
+  }
+
   Serial.println("Starting wifi server...");
   server.begin();
   server_started = true;
+
+  MDNS.addService("http", "tcp", 80);
 }
 
 void stopWifiServer() {
+  MDNS.end();
+
   Serial.println("Stopping wifi server...");
   server.end();
   server_started = false;
@@ -197,6 +205,10 @@ void processServer() {
   }
 
   dns_server.processNextRequest();
+
+#if defined(ESP8266)
+  MDNS.update();
+#endif
 }
 
 bool getBool(AsyncWebServerRequest* request, const char* field, bool& value) {

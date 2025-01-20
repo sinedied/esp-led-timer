@@ -3,6 +3,6 @@
 - [ ] publish on instructable or hackaday
 
 ## Maybe
-- add mDNS responder
+- [x] add mDNS responder
 - Wifi station connection/config?
   * see https://github.com/ayushsharma82/ESPConnect
